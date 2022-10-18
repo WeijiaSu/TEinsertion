@@ -27,9 +27,10 @@ TEmap=args.TE_map
 Refmap=args.Genome_map
 offset=args.flexibility
 
-def getFullLength(MapRes,Refmap):
-	te=pd.read_table(MapRes,header=None,sep=" ")
+def getFullLength(TEmap,Refmap):
+	te=pd.read_table(TEmap,header=None,sep=" ")
 	te=te.loc[(te[7]<=offset) & (te[8]>=te[6]-offset)]
+	te=te[range(9)]
 	print(te[0:10])
 	print(te.shape)
 	print(len(set(te[0])))
@@ -39,10 +40,10 @@ def getFullLength(MapRes,Refmap):
 	print(ge.shape)
 	print(ge[0:10])
 	print(len(set(ge[0])))
-	
-	
-
-	f=ge.merge(te)
-
+	te.columns=["ReadName","ReadLen","Read_s","Read_e","TEStrand","TEName","TELen","TE_s","TE_e"]
+	ge.columns=["ReadName","ReadLen","Read_s","Read_e","RefStrand","RefName","RefLen","Ref_s","Ref_e"]
+	f=ge.merge(te,on=["ReadName","ReadLen"],how="inner")
+	print(f.shape)
+	print(f[0:10])
 getFullLength(TEmap,Refmap)
 
