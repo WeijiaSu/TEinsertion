@@ -31,19 +31,15 @@ def getFullLength(TEmap,Refmap):
 	te=pd.read_table(TEmap,header=None,sep=" ")
 	te=te.loc[(te[7]<=offset) & (te[8]>=te[6]-offset)]
 	te=te[range(9)]
-	print(te[0:10])
-	print(te.shape)
-	print(len(set(te[0])))
 	ge=pd.read_table(Refmap,header=None,sep=" ")
 	ge=ge[range(9)]
 	ge=ge.loc[ge[0].isin(te[0])]
-	print(ge.shape)
-	print(ge[0:10])
-	print(len(set(ge[0])))
-	te.columns=["ReadName","ReadLen","Read_s","Read_e","TEStrand","TEName","TELen","TE_s","TE_e"]
-	ge.columns=["ReadName","ReadLen","Read_s","Read_e","RefStrand","RefName","RefLen","Ref_s","Ref_e"]
+	te.columns=["ReadName","ReadLen","Readte_s","Readte_e","TEStrand","TEName","TELen","TE_s","TE_e"]
+	ge.columns=["ReadName","ReadLen","Readref_s","Readref_e","RefStrand","RefName","RefLen","Ref_s","Ref_e"]
 	f=ge.merge(te,on=["ReadName","ReadLen"],how="inner")
+	f=f.loc[(f["Readref_s"]<f["Readte_s"]-offset) & (f["Readref_e"]>f["Readte_e"]+offset)]
 	print(f.shape)
 	print(f[0:10])
+	print(len)
 getFullLength(TEmap,Refmap)
 
