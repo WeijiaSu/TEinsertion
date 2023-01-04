@@ -74,9 +74,7 @@ def combine(TEfile,Genomefile):
 
 def single(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
-	print(f[0:10])
-	print(f.shape)
-	print(f.drop_duplicates(["Readname"],keep="first").shape)
+	f=f.drop_duplicates(["Readname","ReadStart_REF","ReadEnd_REF"])
 	single=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==1)
 	single["Junc_1"]=0
 	single.loc[(single["Strand_REF"]=="-")&(single["dis1"]<=100),"Junc_1"]=single["REFstart"].apply(int)
@@ -88,9 +86,27 @@ def single(filteredFile):
 	print(single.shape)
 	print(single.drop_duplicates(["Readname"],keep="first").shape)
 
+#single(pName+"_filtered.tsv")
+
+def double(filteredFile):
+	f=pd.read_table(filteredFile,header=0,sep="\t")
+	f=f.drop_duplicates(["Readname","ReadStart_REF","ReadEnd_REF"])
+	double=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==2)
+
+	double["Junc_1"]=0
+	double["Junc_2"]=0
+	double.loc[(double["Strand_REF"]=="-")&(double["dis1"]<=100),"Junc_1"]=double["REFstart"].apply(int)
+	double.loc[(double["Strand_REF"]=="+")&(double["dis1"]<=100),"Junc_1"]=double["REFend"].apply(int)
+	double.loc[(double["Strand_REF"]=="+")&(double["dis2"]<=100),"Junc_2"]=double["REFstart"].apply(int)
+	double.loc[(double["Strand_REF"]=="-")&(double["dis2"]<=100),"Junc_2"]=double["REFend"].apply(int)
+	print(double[0:10])
+	print(double.shape)
+	print(double.drop_duplicates(["Readname"],keep="first").shape)
+	
+
+double(pName+"_filtered.tsv")
 
 
-single(pName+"_filtered.tsv")
 #def getMultiFragment(f):
 #  f2_1=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="first")
 #  f2_2=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="last")
