@@ -72,10 +72,25 @@ def combine(TEfile,Genomefile):
 #	
 #combine(Ta,Ga)
 
-def single(file):
+def single(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
+	print(f[0:10])
+	print(f.shape)
+	print(f.drop_duplicates(["Readname"],keep="first").shape)
+	single=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==1)
+	single["Junc_1"]=0
+	single.loc[(single["Strand_REF"]=="-")&(single["dis1"]<=100),"Junc_1"]=single["REFstart"].apply(int)
+	single.loc[(single["Strand_REF"]=="-")&(single["dis2"]<=100),"Junc_1"]=single["REFend"].apply(int)
+	single.loc[(single["Strand_REF"]=="+")&(single["dis1"]<=100),"Junc_1"]=single["REFend"].apply(int)
+	single.loc[(single["Strand_REF"]=="+")&(single["dis2"]<=100),"Junc_1"]=single["REFstart"].apply(int)
+	
+	print(single[0:10])
+	print(single.shape)
+	print(single.drop_duplicates(["Readname"],keep="first").shape)
 
 
+
+single(pName+"_filtered.tsv")
 #def getMultiFragment(f):
 #  f2_1=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="first")
 #  f2_2=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="last")
