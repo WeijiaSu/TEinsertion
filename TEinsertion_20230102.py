@@ -35,57 +35,63 @@ def combine(TEfile,Genomefile):
 	Genome=pd.read_table(Genomefile,header=None,sep=" ")
 	TE=TE[range(0,9)]
 	Genome=Genome[range(0,9)]
+	TE_columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TE_Name","TElen","TEstart","TEend"]
+	Genome_columns=["Readname","ReadLen","ReadStart_REF","ReadEnd_REF","Strand_REF","REF_Name","REFlen","REFstart","REFend"]
+	TE.columns=TE_columns
+	Genome.columns=Genome_columns
 	print(TE.shape)
 	print(TE[0:10])
 	print(Genome.shape)
 	print(Genome[0:10])
+	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
+
+	combined["overlap"]=False
+	# remove full comverage
+	full_cover=((combined["ReadStart_REF"]<combined["ReadStart_TE"]) & (combined["ReadEnd_REF"]>combined["ReadStart_TE"]))
+	combined.loc[full_cover,"overlap"]=True
+	remove=combined.loc[combined["overlap"]==True]
+	combined=combined.loc[~(combined["Readname"].isin(list(remove["Readname"])))]
+
+	print(combined.shape)
+	print(combined[0:10])
+	print(combined.drop_duplicates("Readname",keep="first").shape)
 	
-	q_c=["RefStart","RefEnd","ReadLen","ReadStart","ReadEnd"]
-	#for i in q_c:
-#		TE[i]=TE[i].apply(int)
-#		Genome[i]=Genome[i].apply(int)
-#	r=Genome.loc[(Genome["ReadStart"]<=100) & (Genome["ReadEnd"]>=Genome["ReadLen"]-100)]
-#	print(r.shape)
-#	Genome=Genome.loc[~Genome["Readname"].isin(list(r["Readname"]))]
-#	print(Genome.shape)
-#	combined=pd.merge(TE,Genome,how="inner",on=["Readname"])
-#	combined=combined[["Readname","ReadLen_x","ReadStart_x","ReadEnd_x","Strand_x","ReadStart_y","ReadEnd_y","Strand_y","Refname_x","RefLen","RefStart_x","RefEnd_x","Refname_y","RefStart_y","RefEnd_y"]]
-#	combined.columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","ReadStart_ref","ReadEnd_ref","Strand_ref","TEname","TElength","TEstart","TEend","RefName","RefStart","RefEnd"]
-#	combined["overlap"]=False
-#	overlap1=((combined["ReadStart_ref"]<=combined["ReadStart_TE"]) & (combined["ReadEnd_ref"]>=combined["ReadStart_TE"]+fl))
-#	combined.loc[overlap1,"overlap"]=True
-#	overlap2=((combined["ReadEnd_ref"]>=combined["ReadEnd_TE"]) & (combined["ReadStart_ref"]<=combined["ReadEnd_TE"]-fl))
-#	combined.loc[overlap2,"overlap"]=True
-#	overlap3=((combined["ReadStart_TE"]<=combined["ReadStart_ref"]) & (combined["ReadEnd_TE"]>=combined["ReadStart_ref"]+fl))
-#	combined.loc[overlap3,"overlap"]=True
-#	overlap4=((combined["ReadEnd_TE"]>=combined["ReadEnd_ref"]) & (combined["ReadStart_TE"]<=combined["ReadEnd_ref"]+fl))
-#	combined.loc[overlap3,"overlap"]=True
-#	f=combined.loc[combined["overlap"]==False]
-#	f["dis1"]=abs(f["ReadEnd_ref"]-f["ReadStart_TE"])
-#	f["dis2"]=abs(f["ReadStart_ref"]-f["ReadEnd_TE"])
-#	f=f.loc[(f["dis1"]<=100) | (f["dis2"]<=100)]
-#	f=f.drop(["dis1","dis2","overlap"],axis=1)
-#	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
+	combined["overlap"]=True
+	conf=((combined["ReadStart_REF"]>=combined["ReadEnd_TE"]-fl) | (combined["ReadEnd_REF"]<=combined["ReadStart_TE"]+fl))
+	combined.loc[conf,"overlap"]=False
+	
+	f=combined.loc[combined["overlap"]==False]
+	f["dis1"]=abs(f["ReadEnd_REF"]-f["ReadStart_TE"])
+	f["dis2"]=abs(f["ReadStart_REF"]-f["ReadEnd_TE"])
+	f=f.loc[(f["dis1"]<=100) | (f["dis2"]<=100)]
+	print(f.shape)
+	print(f[0:10])
+	print(f.drop_duplicates("Readname",keep="first").shape)
+	f=f.drop(["overlap"],axis=1)
+	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
 #	
-combine(Ta,Ga)
+#combine(Ta,Ga)
+
+def single(file):
+	f=pd.read_table(filteredFile,header=0,sep="\t")
 
 
-def getMultiFragment(f):
-  f2_1=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="first")
-  f2_2=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="last")
-  new_f2=f2_1.merge(f2_2,on=["Readname","TEname","ReadStart_TE","ReadEnd_TE"],how="inner")
-  new_f2=new_f2.drop(["ReadLen_y","Strand_TE_y","TEstart_y","TEend_y","TElength_y"],axis=1)
-  new_f2=new_f2[["Readname","ReadLen_x","ReadStart_TE","ReadEnd_TE","Strand_TE_x","TEname","TElength_x","TEstart_x","TEend_x","RefName_x","RefStart_x","RefEnd_x","ReadStart_ref_x","ReadEnd_ref_x","Strand_ref_x","RefName_y","RefStart_y","RefEnd_y","ReadStart_ref_y","ReadEnd_ref_y","Strand_ref_y"]]
-
-  new_f2.columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TEname","TElength_x","TEstart_x","TEend_x","RefName_x","RefStart_x","RefEnd_x","ReadStart_ref_x","ReadEnd_ref_x","Strand_ref_x","RefName_y","RefStart_y","RefEnd_y","ReadStart_ref_y","ReadEnd_ref_y","Strand_ref_y"]
-  
-  new_f2=new_f2.loc[new_f2["RefName_x"]==new_f2["RefName_y"]]
-  new_f2["dis1"]=abs(new_f2["ReadEnd_ref_x"]-new_f2["ReadStart_TE"])
-  new_f2["dis2"]=abs(new_f2["ReadStart_ref_y"]-new_f2["ReadEnd_TE"])
-  new_f2=new_f2.loc[(new_f2["dis1"]<=100) & (new_f2["dis2"]<=100)]
-  new_f2=new_f2.loc[(new_f2["ReadStart_ref_x"]<=fl) & (new_f2["ReadEnd_ref_y"]>=new_f2["ReadLen"]-fl)]
-  return new_f2
-
+#def getMultiFragment(f):
+#  f2_1=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="first")
+#  f2_2=f.drop_duplicates(["Readname","TEname","ReadStart_TE","ReadStart_TE"],keep="last")
+#  new_f2=f2_1.merge(f2_2,on=["Readname","TEname","ReadStart_TE","ReadEnd_TE"],how="inner")
+#  new_f2=new_f2.drop(["ReadLen_y","Strand_TE_y","TEstart_y","TEend_y","TElength_y"],axis=1)
+#  new_f2=new_f2[["Readname","ReadLen_x","ReadStart_TE","ReadEnd_TE","Strand_TE_x","TEname","TElength_x","TEstart_x","TEend_x","RefName_x","RefStart_x","RefEnd_x","ReadStart_ref_x","ReadEnd_ref_x","Strand_ref_x","RefName_y","RefStart_y","RefEnd_y","ReadStart_ref_y","ReadEnd_ref_y","Strand_ref_y"]]
+#
+#  new_f2.columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TEname","TElength_x","TEstart_x","TEend_x","RefName_x","RefStart_x","RefEnd_x","ReadStart_ref_x","ReadEnd_ref_x","Strand_ref_x","RefName_y","RefStart_y","RefEnd_y","ReadStart_ref_y","ReadEnd_ref_y","Strand_ref_y"]
+#  
+#  new_f2=new_f2.loc[new_f2["RefName_x"]==new_f2["RefName_y"]]
+#  new_f2["dis1"]=abs(new_f2["ReadEnd_ref_x"]-new_f2["ReadStart_TE"])
+#  new_f2["dis2"]=abs(new_f2["ReadStart_ref_y"]-new_f2["ReadEnd_TE"])
+#  new_f2=new_f2.loc[(new_f2["dis1"]<=100) & (new_f2["dis2"]<=100)]
+#  new_f2=new_f2.loc[(new_f2["ReadStart_ref_x"]<=fl) & (new_f2["ReadEnd_ref_y"]>=new_f2["ReadLen"]-fl)]
+#  return new_f2
+#
 def get_insertions(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
 	f=f.sort_values(["Readname","TEname","ReadStart_TE","ReadEnd_TE","RefName","ReadStart_ref","ReadEnd_ref"])
