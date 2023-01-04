@@ -74,13 +74,16 @@ def combine(TEfile,Genomefile):
 
 def single(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
-	f=f.drop_duplicates(["Readname","ReadStart_REF","ReadEnd_REF"])
+	f=f.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
+	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="last")
+	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="first")
 	single=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==1)
-	single["Junc_1"]=0
+	single["Junc_1"]=-1
+	single["Junc_2"]=-1
 	single.loc[(single["Strand_REF"]=="-")&(single["dis1"]<=100),"Junc_1"]=single["REFstart"].apply(int)
 	single.loc[(single["Strand_REF"]=="-")&(single["dis2"]<=100),"Junc_1"]=single["REFend"].apply(int)
-	single.loc[(single["Strand_REF"]=="+")&(single["dis1"]<=100),"Junc_1"]=single["REFend"].apply(int)
-	single.loc[(single["Strand_REF"]=="+")&(single["dis2"]<=100),"Junc_1"]=single["REFstart"].apply(int)
+	single.loc[(single["Strand_REF"]=="+")&(single["dis1"]<=100),"Junc_2"]=single["REFend"].apply(int)
+	single.loc[(single["Strand_REF"]=="+")&(single["dis2"]<=100),"Junc_2"]=single["REFstart"].apply(int)
 	
 	print(single[0:10])
 	print(single.shape)
@@ -91,11 +94,13 @@ single_df=single(pName+"_filtered.tsv")
 
 def double(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
-	f=f.drop_duplicates(["Readname","ReadStart_REF","ReadEnd_REF"])
+	f=f.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
+	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="last")
+	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="first")
 	double=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==2)
 
-	double["Junc_1"]=0
-	double["Junc_2"]=0
+	double["Junc_1"]=-1
+	double["Junc_2"]=-1
 	double.loc[(double["Strand_REF"]=="-")&(double["dis1"]<=100),"Junc_1"]=double["REFstart"].apply(int)
 	double.loc[(double["Strand_REF"]=="+")&(double["dis1"]<=100),"Junc_1"]=double["REFend"].apply(int)
 	double.loc[(double["Strand_REF"]=="+")&(double["dis2"]<=100),"Junc_2"]=double["REFstart"].apply(int)
@@ -135,10 +140,30 @@ def single_reads(single_df):
 	single_df.loc[single_df["dis2"]<=100,"Read_rightEnd"]=single_df["ReadEnd_REF"].apply(int)
 	single_df.loc[single_df["dis2"]<=100,"Read_rightStrand"]=single_df["Strand_REF"]
 
-	single_out=single_df[["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand"]]
+
+	single_out=single_df[["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand","Junc_1","Junc_2"]]
 	
 	print(single_out.shape)
 	print(single_out[0:10])
 	
 	return single_out
-single_reads(single_df)
+#single_reads(single_df)
+
+
+def double_reads(double_df):
+	double_df=double_df.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
+	double_df_1=double_df.drop_duplicates(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],keep="first")
+	double_df_2=double_df.drop_duplicates(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],keep="last")
+
+	double_df_1_out=single_reads(double_df_1)
+	double_df_2_out=single_reads(double_df_2)
+
+	print(double_df.shape)
+	print(double_df[0:10])
+
+	print(double_df_1_out[0:10])
+	print(double_df_2_out[0:10])
+
+	
+
+double_reads(double_df)
