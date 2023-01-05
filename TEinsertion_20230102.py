@@ -173,11 +173,26 @@ def appendResult(single_out,double_out):
 	f.loc[full_TE,"TEconf"]="FL_TE"
 	f.loc[truncated,"TEconf"]="trunc_TE"
 	f.loc[frag,"TEconf"]="frag_TE"
-	
-	
+	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
+	return f
+outf=appendResult(single_out,double_out)
+
+def genomeLocation(outfile):
+	f=pd.read_table(outfile)
+	f["coor1"]=-1
+	f["coor2"]=-1
+	f.loc[f["Junc_2"]==-1,"coor1"]=f["Junc_1"].apply(lambda x: round(x,-2))
+	f.loc[f["Junc_1"]==-1,"coor1"]=f["Junc_2"].apply(lambda x: round(x,-2))
+	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]<=f["Junc_2"]), "coor1"]=f["Junc_1"].apply(lambda x: round(x,-2))
+	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]>f["Junc_2"]), "coor1"]=f["Junc_2"].apply(lambda x: round(x,-2))
+	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]<=f["Junc_2"]), "coor2"]=f["Junc_2"].apply(lambda x: round(x,-2))
+	f.loc[(f["Junc_1"]!=-1)& (f["Junc_2"]!=-1)& (f["Junc_1"]>=f["Junc_2"]), "coor2"]=f["Junc_1"].apply(lambda x: round(x,-2))
+	f.loc[f["left_refName"]!="-1","refName"]=f["left_refName"]
+	f.loc[f["left_refName"]=="-1","refName"]=f["right_refName"]
+	f=f.loc[f["TEconf"]=="FL_TE"]
+	f=f.groupby(["refName","coor1"],as_index=False).count()
 	print(f.shape)
 	print(f[0:10])
-	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
 
-appendResult(single_out,double_out)
-	
+
+genomeLocation(pName+"_InsReads.tsv")
