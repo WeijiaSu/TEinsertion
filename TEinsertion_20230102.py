@@ -167,7 +167,17 @@ def appendResult(single_out,double_out):
 	double_out["conf"]="double"
 	
 	f=single_out.append(double_out)
+	full_TE=(f["TEstart"]<=fl) & (f["TEend"]>=f["TElen"]-fl)
+	truncated=((f["TEstart"]<=fl) & (f["TEend"]<=f["TElen"]-fl)) | ((f["TEstart"]>=fl) & (f["TEend"]>=f["TElen"]-fl))
+	frag=(f["TEstart"]>fl) & (f["TEend"]<f["TElen"]-fl)
+	f.loc[full_TE,"TEconf"]="FL_TE"
+	f.loc[truncated,"TEconf"]="trunc_TE"
+	f.loc[frag,"TEconf"]="frag_TE"
+	
+	
 	print(f.shape)
 	print(f[0:10])
+	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
+
 appendResult(single_out,double_out)
 	
