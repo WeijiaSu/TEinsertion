@@ -81,13 +81,10 @@ def single(filteredFile):
 	single["Junc_1"]=-1
 	single["Junc_2"]=-1
 	single.loc[(single["Strand_REF"]=="-")&(single["dis1"]<=100),"Junc_1"]=single["REFstart"].apply(int)
-	single.loc[(single["Strand_REF"]=="-")&(single["dis2"]<=100),"Junc_1"]=single["REFend"].apply(int)
-	single.loc[(single["Strand_REF"]=="+")&(single["dis1"]<=100),"Junc_2"]=single["REFend"].apply(int)
+	single.loc[(single["Strand_REF"]=="+")&(single["dis1"]<=100),"Junc_1"]=single["REFend"].apply(int)
+	single.loc[(single["Strand_REF"]=="-")&(single["dis2"]<=100),"Junc_2"]=single["REFend"].apply(int)
 	single.loc[(single["Strand_REF"]=="+")&(single["dis2"]<=100),"Junc_2"]=single["REFstart"].apply(int)
 	
-	print(single[0:10])
-	print(single.shape)
-	print(single.drop_duplicates(["Readname"],keep="first").shape)
 	return single
 
 single_df=single(pName+"_filtered.tsv")
@@ -105,9 +102,6 @@ def double(filteredFile):
 	double.loc[(double["Strand_REF"]=="+")&(double["dis1"]<=100),"Junc_1"]=double["REFend"].apply(int)
 	double.loc[(double["Strand_REF"]=="+")&(double["dis2"]<=100),"Junc_2"]=double["REFstart"].apply(int)
 	double.loc[(double["Strand_REF"]=="-")&(double["dis2"]<=100),"Junc_2"]=double["REFend"].apply(int)
-	print(double[0:10])
-	print(double.shape)
-	print(double.drop_duplicates(["Readname"],keep="first").shape)
 	return double	
 
 double_df=double(pName+"_filtered.tsv")
@@ -143,11 +137,8 @@ def single_reads(single_df):
 
 	single_out=single_df[["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand","Junc_1","Junc_2"]]
 	
-	print(single_out.shape)
-	print(single_out[0:10])
-	
 	return single_out
-single_reads(single_df)
+single_out=single_reads(single_df)
 
 
 def double_reads(double_df):
@@ -157,18 +148,26 @@ def double_reads(double_df):
 
 	double_df_1_out=single_reads(double_df_1)
 	double_df_2_out=single_reads(double_df_2)
-	
-
-	#print(double_df.shape)
-	#print(double_df[0:10])
-	
-	print(double_df_1.shape)
-	print(double_df_1_out[0:10])
-	print(double_df_2.shape)
-	print(double_df_2_out[0:10])
-
 	double_out=pd.merge(double_df_1,double_df_2,on=["Readname","ReadLen","TE_Name","TElen","ReadStart_TE","ReadEnd_TE","Strand_TE","TEstart","TEend"],how="inner")
+	remove1=double_out["Strand_REF_x"]!=double_out["Strand_REF_y"]
+	remove2=double_out["REF_Name_x"]!=double_out["REF_Name_y"]
+	remove=double_out.loc[remove1 | remove2]
+	double_out=double_out.loc[~double_out["Readname"].isin(list(remove["Readname"]))]
+	
 	double_out=double_out[["Readname","ReadLen","TE_Name","TElen","REF_Name_x","REFstart_x","REFend_x","TEstart","TEend","REF_Name_y","REFstart_y","REFend_y","ReadStart_REF_x","ReadStart_REF_x","Strand_REF_x","ReadStart_TE","ReadEnd_TE","Strand_TE","ReadStart_REF_y","ReadEnd_REF_y","Strand_REF_y","Junc_1_x","Junc_2_y"]]
-	print(double_out.shape)
-	print(double_out[0:10])
-double_reads(double_df)
+	
+	columns=["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand","Junc_1","Junc_2"]
+	double_out.columns=columns
+	return double_out
+
+double_out=double_reads(double_df)
+
+def appendResult(single_out,double_out):
+	single_out["conf"]="single"
+	double_out["conf"]="double"
+	
+	f=single_out.append(double_out)
+	print(f.shape)
+	print(f[0:10])
+appendResult(single_out,double_out)
+	
