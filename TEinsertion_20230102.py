@@ -147,7 +147,7 @@ def single_reads(single_df):
 	print(single_out[0:10])
 	
 	return single_out
-#single_reads(single_df)
+single_reads(single_df)
 
 
 def double_reads(double_df):
@@ -157,13 +157,18 @@ def double_reads(double_df):
 
 	double_df_1_out=single_reads(double_df_1)
 	double_df_2_out=single_reads(double_df_2)
-
-	print(double_df.shape)
-	print(double_df[0:10])
-
-	print(double_df_1_out[0:10])
-	print(double_df_2_out[0:10])
-
 	
 
+	#print(double_df.shape)
+	#print(double_df[0:10])
+	
+	print(double_df_1.shape)
+	print(double_df_1_out[0:10])
+	print(double_df_2.shape)
+	print(double_df_2_out[0:10])
+
+	double_out=pd.merge(double_df_1,double_df_2,on=["Readname","ReadLen","TE_Name","TElen","ReadStart_TE","ReadEnd_TE","Strand_TE","TEstart","TEend"],how="inner")
+	double_out=double_out[["Readname","ReadLen","TE_Name","TElen","REF_Name_x","REFstart_x","REFend_x","TEstart","TEend","REF_Name_y","REFstart_y","REFend_y","ReadStart_REF_x","ReadStart_REF_x","Strand_REF_x","ReadStart_TE","ReadEnd_TE","Strand_TE","ReadStart_REF_y","ReadEnd_REF_y","Strand_REF_y","Junc_1_x","Junc_2_y"]]
+	print(double_out.shape)
+	print(double_out[0:10])
 double_reads(double_df)
