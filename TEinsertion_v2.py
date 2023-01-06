@@ -39,10 +39,6 @@ def combine(TEfile,Genomefile):
 	Genome_columns=["Readname","ReadLen","ReadStart_REF","ReadEnd_REF","Strand_REF","REF_Name","REFlen","REFstart","REFend"]
 	TE.columns=TE_columns
 	Genome.columns=Genome_columns
-	print(TE.shape)
-	print(TE[0:10])
-	print(Genome.shape)
-	print(Genome[0:10])
 	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
 
 	combined["overlap"]=False
@@ -52,10 +48,6 @@ def combine(TEfile,Genomefile):
 	remove=combined.loc[combined["overlap"]==True]
 	combined=combined.loc[~(combined["Readname"].isin(list(remove["Readname"])))]
 
-	print(combined.shape)
-	print(combined[0:10])
-	print(combined.drop_duplicates("Readname",keep="first").shape)
-	
 	combined["overlap"]=True
 	conf=((combined["ReadStart_REF"]>=combined["ReadEnd_TE"]-fl) | (combined["ReadEnd_REF"]<=combined["ReadStart_TE"]+fl))
 	combined.loc[conf,"overlap"]=False
@@ -70,7 +62,7 @@ def combine(TEfile,Genomefile):
 	f=f.drop(["overlap"],axis=1)
 	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
 #	
-#combine(Ta,Ga)
+combine(Ta,Ga)
 
 def single(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
