@@ -62,7 +62,6 @@ def combine(TEfile,Genomefile):
 	f=f.drop(["overlap"],axis=1)
 	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
 #	
-combine(Ta,Ga)
 
 def single(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
@@ -79,7 +78,6 @@ def single(filteredFile):
 	
 	return single
 
-single_df=single(pName+"_filtered.tsv")
 
 def double(filteredFile):
 	f=pd.read_table(filteredFile,header=0,sep="\t")
@@ -96,7 +94,6 @@ def double(filteredFile):
 	double.loc[(double["Strand_REF"]=="-")&(double["dis2"]<=100),"Junc_2"]=double["REFend"].apply(int)
 	return double	
 
-double_df=double(pName+"_filtered.tsv")
 
 
 def single_reads(single_df):
@@ -130,7 +127,6 @@ def single_reads(single_df):
 	single_out=single_df[["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand","Junc_1","Junc_2"]]
 	
 	return single_out
-single_out=single_reads(single_df)
 
 
 def double_reads(double_df):
@@ -152,7 +148,6 @@ def double_reads(double_df):
 	double_out.columns=columns
 	return double_out
 
-double_out=double_reads(double_df)
 
 def appendResult(single_out,double_out):
 	single_out["conf"]="single"
@@ -167,7 +162,6 @@ def appendResult(single_out,double_out):
 	f.loc[frag,"TEconf"]="frag_TE"
 	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
 	return f
-outf=appendResult(single_out,double_out)
 
 def genomeLocation(outfile):
 	f=pd.read_table(outfile)
@@ -181,10 +175,17 @@ def genomeLocation(outfile):
 	f.loc[(f["Junc_1"]!=-1)& (f["Junc_2"]!=-1)& (f["Junc_1"]>=f["Junc_2"]), "coor2"]=f["Junc_1"].apply(lambda x: round(x,-2))
 	f.loc[f["left_refName"]!="-1","refName"]=f["left_refName"]
 	f.loc[f["left_refName"]=="-1","refName"]=f["right_refName"]
-	f=f.loc[f["TEconf"]=="FL_TE"]
+	f=f.loc[f["TEconf"]=="trunc_TE"]
 	f=f.groupby(["refName","coor1"],as_index=False).count()
 	print(f.shape)
 	print(f[0:10])
 
 
+
+combine(Ta,Ga)
+single_df=single(pName+"_filtered.tsv")
+double_df=double(pName+"_filtered.tsv")
+single_out=single_reads(single_df)
+double_out=double_reads(double_df)
+outf=appendResult(single_out,double_out)
 genomeLocation(pName+"_InsReads.tsv")
