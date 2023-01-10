@@ -31,16 +31,20 @@ fl=args.flexibility
 
 
 def combine(TEfile,Genomefile):
+	# Read paf of TE and the genome alignment
 	TE=pd.read_table(TEfile,header=None,sep=" ")
 	Genome=pd.read_table(Genomefile,header=None,sep=" ")
+	# Get the first 9 columns of both files.
 	TE=TE[range(0,9)]
 	Genome=Genome[range(0,9)]
+	# Re-name the columns
 	TE_columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TE_Name","TElen","TEstart","TEend"]
 	Genome_columns=["Readname","ReadLen","ReadStart_REF","ReadEnd_REF","Strand_REF","REF_Name","REFlen","REFstart","REFend"]
 	TE.columns=TE_columns
 	Genome.columns=Genome_columns
-	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
 
+	#Merge the two dataframes
+	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
 	combined["overlap"]=False
 	# remove full comverage
 	full_cover=((combined["ReadStart_REF"]<combined["ReadStart_TE"]) & (combined["ReadEnd_REF"]>combined["ReadStart_TE"]))
