@@ -47,22 +47,27 @@ def combine(TEfile,Genomefile):
 	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
 	combined["overlap"]=False
 	# remove full comverage
-	full_cover=((combined["ReadStart_REF"]<combined["ReadStart_TE"]) & (combined["ReadEnd_REF"]>combined["ReadStart_TE"]))
+	full_cover=((combined["ReadStart_REF"]<=combined["ReadStart_TE"]) & (combined["ReadEnd_REF"]>=combined["ReadStart_TE"]))
+	combined.loc[full_cover,"overlap"]=True
+	full_cover=((combined["ReadStart_REF"]<=combined["ReadEnd_TE"]) & (combined["ReadEnd_REF"]>=combined["ReadEnd_TE"]))
 	combined.loc[full_cover,"overlap"]=True
 	remove=combined.loc[combined["overlap"]==True]
 	combined=combined.loc[~(combined["Readname"].isin(list(remove["Readname"])))]
 
+	# Select correct configuration
 	combined["overlap"]=True
 	conf=((combined["ReadStart_REF"]>=combined["ReadEnd_TE"]-fl) | (combined["ReadEnd_REF"]<=combined["ReadStart_TE"]+fl))
 	combined.loc[conf,"overlap"]=False
-	
 	f=combined.loc[combined["overlap"]==False]
+	
+	# distance between ReadEnd_Ref and ReadStart_TE: which indicates left flank
 	f["dis1"]=abs(f["ReadEnd_REF"]-f["ReadStart_TE"])
+	
+	# distance between ReadStart_REF and ReadEnd_TE: which indicates right flank
 	f["dis2"]=abs(f["ReadStart_REF"]-f["ReadEnd_TE"])
+	
+	# the gap between TE and flank should be smaller than the threshold (100 bp)
 	f=f.loc[(f["dis1"]<=100) | (f["dis2"]<=100)]
-	print(f.shape)
-	print(f[0:10])
-	print(f.drop_duplicates("Readname",keep="first").shape)
 	f=f.drop(["overlap"],axis=1)
 	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
 #	
