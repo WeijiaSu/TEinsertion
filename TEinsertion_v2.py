@@ -73,10 +73,14 @@ def combine(TEfile,Genomefile):
 #	
 
 def single(filteredFile):
+	
 	f=pd.read_table(filteredFile,header=0,sep="\t")
+	# for each read_TE combination, sort by reads start coordinates
 	f=f.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
-	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="last")
-	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="first")
+	# drop duplicated genome mappings
+	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="first")
+	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="last")
+	
 	single=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==1)
 	single["Junc_1"]=-1
 	single["Junc_2"]=-1
