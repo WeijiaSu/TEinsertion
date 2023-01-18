@@ -1,2 +1,2 @@
-1. Reference full length
-2. Denovo full length
+1. Reference:get referenced copies by blastn
+2. Denovo
