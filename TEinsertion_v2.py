@@ -97,7 +97,7 @@ def double(filteredFile):
 	f=f.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
 	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="last")
 	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="first")
-	double=f.groupby(["Readname","TE_Name"],as_index=False).filter(lambda x: len(x)==2)
+	double=f.groupby(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],as_index=False).filter(lambda x: len(x)==2)
 
 	double["Junc_1"]=-1
 	double["Junc_2"]=-1
@@ -176,9 +176,12 @@ def appendResult(single_out,double_out):
 	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
 	return f
 
-combine(Ta,Ga)
+#combine(Ta,Ga)
 single_df=single(pName+"_filtered.tsv")
 double_df=double(pName+"_filtered.tsv")
-single_out=single_reads(single_df)
-double_out=double_reads(double_df)
-outf=appendResult(single_out,double_out)
+print(double_df.shape)
+print(double_df[0:10])
+print(double_df.drop_duplicates(["Readname"],keep="first").shape)
+#single_out=single_reads(single_df)
+#double_out=double_reads(double_df)
+#outf=appendResult(single_out,double_out)
