@@ -20,6 +20,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("-Ta","--TE_bam")
 parser.add_argument("-Ga","--Genome_bam")
 parser.add_argument("-pName","--Prefix")
+parser.add_argument("-fq","--Rawfastq")
 parser.add_argument("-flex","--flexibility",default=100)
 
 args=parser.parse_args()
@@ -27,122 +28,38 @@ args=parser.parse_args()
 Ta=args.TE_bam
 Ga=args.Genome_bam
 pName=args.Prefix
+fq=args.Rawfastq
 fl=args.flexibility
 
 
-def combine(TEfile,Genomefile):
+def FullLegnthTE(TEfile):
 	# Read paf of TE and the genome alignment
 	TE=pd.read_table(TEfile,header=None,sep=" ")
-	Genome=pd.read_table(Genomefile,header=None,sep=" ")
 	# Get the first 9 columns of both files.
 	TE=TE[range(0,9)]
-	Genome=Genome[range(0,9)]
 	# Re-name the columns
 	TE_columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TE_Name","TElen","TEstart","TEend"]
-	Genome_columns=["Readname","ReadLen","ReadStart_REF","ReadEnd_REF","Strand_REF","REF_Name","REFlen","REFstart","REFend"]
 	TE.columns=TE_columns
-	Genome.columns=Genome_columns
 	
 	#Select full length
 	TE=TE.loc[(TE["TEstart"]<=fl) & (TE["TEend"]>=TE["TElen"]-fl)]
+	TE=TE.loc[(TE["ReadStart_TE"]>=100) | (TE["ReadEnd_TE"]<=TE["ReadLen"]-100)]
+	left=TE[["Readname","ReadStart_TE"]]
+	left["s"]=0
+	left=left[["Readname","s","ReadStart_TE"]]
+	right=TE[["Readname","ReadEnd_TE","ReadLen"]]
+	left.to_csv(pName+".left",header=None,index=None,sep="\t")
+	right.to_csv(pName+".right",header=None,index=None,sep="\t")
 	print(TE.shape)
 	print(TE[0:10])
-	#Merge the two dataframes
-	combined=pd.merge(TE,Genome,how="inner",on=["Readname","ReadLen"])
-	combined["overlap"]=False
-	
-	print(combined.shape)
-	print(combined[0:10])
-	
-	# remove full comverage
-	full_cover=((combined["ReadStart_REF"]<=combined["ReadStart_TE"]) & (combined["ReadEnd_REF"]>=combined["ReadStart_TE"]))
-	combined.loc[full_cover,"overlap"]=True
-	full_cover=((combined["ReadStart_REF"]<=combined["ReadEnd_TE"]) & (combined["ReadEnd_REF"]>=combined["ReadEnd_TE"]))
-	combined.loc[full_cover,"overlap"]=True
-	remove=combined.loc[combined["overlap"]==True]
-	combined=combined.loc[~(combined["Readname"].isin(list(remove["Readname"])))]
-	
-	print(combined.shape)
-	print(combined[0:10])
 
-	# Select correct configuration
-	combined["overlap"]=True
-	conf=((combined["ReadStart_REF"]>=combined["ReadEnd_TE"]-fl) | (combined["ReadEnd_REF"]<=combined["ReadStart_TE"]+fl))
-	combined.loc[conf,"overlap"]=False
-	f=combined.loc[combined["overlap"]==False]
-	
-	# distance between ReadEnd_Ref and ReadStart_TE: which indicates left flank
-	f["dis1"]=abs(f["ReadEnd_REF"]-f["ReadStart_TE"])
-	
-	# distance between ReadStart_REF and ReadEnd_TE: which indicates right flank
-	f["dis2"]=abs(f["ReadStart_REF"]-f["ReadEnd_TE"])
-	
-	# the gap between TE and flank should be smaller than the threshold (100 bp)
-	f=f.loc[(f["dis1"]<=100) | (f["dis2"]<=100)]
-	f=f.drop(["overlap"],axis=1)
-	f.to_csv(pName+"_filtered.tsv",index=None,sep="\t")
-#	
+#FullLegnthTE(Ta)
 
-
-def double(filteredFile):
-	f=pd.read_table(filteredFile,header=0,sep="\t")
-	print(f.shape)
-	print(f[0:10])
-	f=f.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
-	f=f.drop_duplicates(["Readname","ReadStart_REF"],keep="last")
-	f=f.drop_duplicates(["Readname","ReadEnd_REF"],keep="first")
-	double=f.groupby(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],as_index=False).filter(lambda x: len(x)==2)
-	print(double.shape)
-	print(double[0:10])
-
-	double["Junc_1"]=-1
-	double["Junc_2"]=-1
-	double.loc[(double["Strand_REF"]=="-")&(double["dis1"]<=100),"Junc_1"]=double["REFstart"].apply(int)
-	double.loc[(double["Strand_REF"]=="+")&(double["dis1"]<=100),"Junc_1"]=double["REFend"].apply(int)
-	double.loc[(double["Strand_REF"]=="+")&(double["dis2"]<=100),"Junc_2"]=double["REFstart"].apply(int)
-	double.loc[(double["Strand_REF"]=="-")&(double["dis2"]<=100),"Junc_2"]=double["REFend"].apply(int)
-	return double	
-
-
-def double_reads(double_df):
-	double_df=double_df.sort_values(["Readname","TE_Name","ReadStart_REF","ReadEnd_REF"])
-	double_df_1=double_df.drop_duplicates(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],keep="first")
-	double_df_2=double_df.drop_duplicates(["Readname","TE_Name","ReadStart_TE","ReadEnd_TE"],keep="last")
-
-	double_df_1_out=single_reads(double_df_1)
-	double_df_2_out=single_reads(double_df_2)
-	double_out=pd.merge(double_df_1,double_df_2,on=["Readname","ReadLen","TE_Name","TElen","ReadStart_TE","ReadEnd_TE","Strand_TE","TEstart","TEend"],how="inner")
-	remove1=double_out["Strand_REF_x"]!=double_out["Strand_REF_y"]
-	remove2=double_out["REF_Name_x"]!=double_out["REF_Name_y"]
-	remove=double_out.loc[remove1 | remove2]
-	double_out=double_out.loc[~double_out["Readname"].isin(list(remove["Readname"]))]
-	
-	double_out=double_out[["Readname","ReadLen","TE_Name","TElen","REF_Name_x","REFstart_x","REFend_x","TEstart","TEend","REF_Name_y","REFstart_y","REFend_y","ReadStart_REF_x","ReadStart_REF_x","Strand_REF_x","ReadStart_TE","ReadEnd_TE","Strand_TE","ReadStart_REF_y","ReadEnd_REF_y","Strand_REF_y","Junc_1_x","Junc_2_y"]]
-	
-	columns=["Readname","ReadLen","TE_Name","TElen","left_refName","left_refStart","left_refEnd","TEstart","TEend","right_refName","right_refStart","right_refEnd","Read_leftStart","Read_leftEnd","Read_leftStrand","ReadStart_TE","ReadEnd_TE","Strand_TE","Read_rightStart","Read_rightEnd","Read_rightStrand","Junc_1","Junc_2"]
-	double_out.columns=columns
-	return double_out
-
-
-def appendResult(single_out,double_out):
-	single_out["conf"]="single"
-	double_out["conf"]="double"
-	
-	f=single_out.append(double_out)
-	full_TE=(f["TEstart"]<=fl) & (f["TEend"]>=f["TElen"]-fl)
-	truncated=((f["TEstart"]<=fl) & (f["TEend"]<=f["TElen"]-fl)) | ((f["TEstart"]>=fl) & (f["TEend"]>=f["TElen"]-fl))
-	frag=(f["TEstart"]>fl) & (f["TEend"]<f["TElen"]-fl)
-	f.loc[full_TE,"TEconf"]="FL_TE"
-	f.loc[truncated,"TEconf"]="trunc_TE"
-	f.loc[frag,"TEconf"]="frag_TE"
-	f.to_csv(pName+"_InsReads.tsv",index=None,sep="\t")
-	return f
-
-combine(Ta,Ga)
-#double_df=double(pName+"_filtered.tsv")
-#print(double_df.shape)
-#print(double_df[0:10])
-#print(double_df.drop_duplicates(["Readname"],keep="first").shape)
-#single_out=single_reads(single_df)
-#double_out=double_reads(double_df)
-#outf=appendResult(single_out,double_out)
+def getSeq(fastq):
+	#seqtk1="seqtk subseq %s %s > %s"%(fastq,pName+".left",pName+".left.fastq")
+	#seqtk2="seqtk subseq %s %s > %s"%(fastq,pName+".right",pName+".right.fastq")
+	#os.system(seqtk1)
+	#os.system(seqtk2)
+	minimap="minimap2 -x map-ont $ref $reads -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i" ";}' FS='\\t'"
+	print(minimap)
+getSeq(fq)
