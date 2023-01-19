@@ -21,6 +21,7 @@ parser.add_argument("-Ta","--TE_bam")
 parser.add_argument("-Ga","--Genome_bam")
 parser.add_argument("-pName","--Prefix")
 parser.add_argument("-fq","--Rawfastq")
+parser.add_argument("-genome","--Genome")
 parser.add_argument("-flex","--flexibility",default=100)
 
 args=parser.parse_args()
@@ -30,7 +31,7 @@ Ga=args.Genome_bam
 pName=args.Prefix
 fq=args.Rawfastq
 fl=args.flexibility
-
+genome=args.Genome
 
 def FullLegnthTE(TEfile):
 	# Read paf of TE and the genome alignment
@@ -55,11 +56,36 @@ def FullLegnthTE(TEfile):
 
 #FullLegnthTE(Ta)
 
-def getSeq(fastq):
-	#seqtk1="seqtk subseq %s %s > %s"%(fastq,pName+".left",pName+".left.fastq")
-	#seqtk2="seqtk subseq %s %s > %s"%(fastq,pName+".right",pName+".right.fastq")
-	#os.system(seqtk1)
-	#os.system(seqtk2)
-	minimap="minimap2 -x map-ont $ref $reads -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i" ";}' FS='\\t'"
+def getSeq(fastq,Genome):
+	seqtk1="seqtk subseq %s %s > %s"%(fastq,pName+".left",pName+".left.fastq")
+	seqtk2="seqtk subseq %s %s > %s"%(fastq,pName+".right",pName+".right.fastq")
+	os.system(seqtk1)
+	os.system(seqtk2)
+	minimap="minimap2 -x map-ont %s %s -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i\" \";print \"\"}' FS='\\t' > %s"%(Genome,pName+".left.fastq",pName+".left.paf")
+	os.system(minimap)
+	minimap="minimap2 -x map-ont %s %s -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i\" \";print \"\"}' FS='\\t' > %s"%(Genome,pName+".right.fastq",pName+".right.paf")
+	os.system(minimap)
 	print(minimap)
-getSeq(fq)
+#getSeq(fq,genome)
+
+def getJuctions(paf1,paf2):
+	left=pd.read_table(paf1,header=None,sep=" ")
+	left=left.drop_duplicates([0,2,3],keep=False).sort_values([0,3],ascending=[True,False])
+	left=left.drop_duplicates([0],keep="first")	
+	left=left.loc[abs(left[1]-left[3])<=500]
+	right=pd.read_table(paf2,header=None,sep=" ")
+	right=right.drop_duplicates([0,2,3],keep=False).sort_values([0,3],ascending=[True,True])
+	right=right.drop_duplicates([0],keep="first")
+	right=right.loc[right[2]<=500]
+	left[9]=left[0].apply(lambda x:x.split(":")[0])
+	right[9]=right[0].apply(lambda x:x.split(":")[0])
+	combined=pd.merge(left,right,on=[9],how="inner")
+	combined=combined[combined["5_x"]==combined["5_y"]]
+	print(left.shape)
+	print(left[0:10])
+	print(right.shape)
+	print(right[0:10])	
+	print(combined[0:10])
+	print(combined.shape)
+
+getJuctions(pName+".left.paf",pName+".right.paf")
