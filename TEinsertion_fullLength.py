@@ -51,10 +51,7 @@ def FullLegnthTE(TEfile):
 	right=TE[["Readname","ReadEnd_TE","ReadLen"]]
 	left.to_csv(pName+".left",header=None,index=None,sep="\t")
 	right.to_csv(pName+".right",header=None,index=None,sep="\t")
-	print(TE.shape)
-	print(TE[0:10])
-
-#FullLegnthTE(Ta)
+	return TE
 
 def getSeq(fastq,Genome):
 	seqtk1="seqtk subseq %s %s > %s"%(fastq,pName+".left",pName+".left.fastq")
@@ -66,7 +63,6 @@ def getSeq(fastq,Genome):
 	minimap="minimap2 -x map-ont %s %s -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i\" \";print \"\"}' FS='\\t' > %s"%(Genome,pName+".right.fastq",pName+".right.paf")
 	os.system(minimap)
 	print(minimap)
-#getSeq(fq,genome)
 
 def getJuctions(paf1,paf2):
 	left=pd.read_table(paf1,header=None,sep=" ")
@@ -91,8 +87,56 @@ def getJuctions(paf1,paf2):
 	combined.loc[combined["4_y"]=="+","J2"]=combined["7_y"]
 	combined.loc[combined["4_y"]=="-","J2"]=combined["8_y"]
 	combined=combined.loc[abs(combined["J1"]-combined["J2"])<1000]
-	print(combined[0:10])
-	print(combined.shape)
-	print(combined.drop_duplicates([9],keep="first").shape)
-	combined.to_csv(pName+".insReads.tsv",header=None,index=None)
-getJuctions(pName+".left.paf",pName+".right.paf")
+	combined.to_csv(pName+".insReads.tsv",header=None,index=None,sep="\t")
+
+def Cluster(combined_result):
+	f=pd.read_table(combined_result,header=None)
+	bedInput=f[[16,21,22,9]]
+	bedInput.loc[bedInput[21]<bedInput[22],"J1"]=bedInput[21]
+	bedInput.loc[bedInput[21]<bedInput[22],"J2"]=bedInput[22]
+	bedInput.loc[bedInput[21]>bedInput[22],"J1"]=bedInput[22]
+	bedInput.loc[bedInput[21]>bedInput[22],"J2"]=bedInput[21]
+	bedInput=bedInput[[16,"J1","J2",9]]
+	bedInput["J1"]=bedInput["J1"].apply(int)
+	bedInput["J2"]=bedInput["J2"].apply(int)
+	bedInput=bedInput.sort_values([16,"J1","J2",9])
+	bedInput.to_csv(pName+"bedInput.tsv",header=None,index=None,sep="\t")
+	bedtools="bedtools cluster -i %s -d 1000 > %s"%(pName+"bedInput.tsv",pName+"cluster.tsv")
+	os.system(bedtools)
+	os.remove(pName+"bedInput.tsv")
+
+
+def Assign(Cluster,combined,fl_TE):
+	f=pd.read_table(combined,header=None)
+	c=pd.read_table(Cluster,header=None)
+	f.loc[f[21]<f[22],"J1"]=f[21]
+	f.loc[f[21]<f[22],"J2"]=f[22]
+	f.loc[f[21]>f[22],"J1"]=f[22]
+	f.loc[f[21]>f[22],"J2"]=f[21]
+	f["J1"]=f["J1"].apply(int)
+	f["J2"]=f["J2"].apply(int)
+	c["UID"]=c[3]+"—"+c[0]+"_"+c[1].apply(str)+"_"+c[2].apply(str)
+	f["UID"]=f[9]+"—"+f[16]+"_"+f["J1"].apply(str)+"_"+f["J2"].apply(str)
+	d=dict(zip(c["UID"],c[4]))
+	f["cluster"]=f["UID"].apply(lambda x: d[x])
+	f=f.sort_values(["cluster"]).drop_duplicates([9],keep="first")
+	f=f[[9,16,"J1","J2","cluster"]]
+	f.columns=["Readname","REFname","REFstart","REFend","cluster"]
+	fl_TE=fl_TE.drop_duplicates(["Readname"],keep="first")
+	fl_TE=fl_TE[["Readname","TE_Name"]]
+	res=f.merge(fl_TE,on=["Readname"],how="inner")
+	res=res.sort_values(["cluster"])
+	print(res[0:10])
+	print(res.shape)
+
+Assign(pName+"cluster.tsv",pName+".insReads.tsv",full_TE)
+
+
+def Main():
+	full_TE=FullLegnthTE(Ta)
+	getSeq(fq,genome)
+	getJuctions(pName+".left.paf",pName+".right.paf")
+	Cluster(pName+".insReads.tsv")
+	Assign(pName+"cluster.tsv",pName+".insReads.tsv",full_TE)
+
+
