@@ -70,22 +70,29 @@ def getSeq(fastq,Genome):
 
 def getJuctions(paf1,paf2):
 	left=pd.read_table(paf1,header=None,sep=" ")
-	left=left.drop_duplicates([0,2,3],keep=False).sort_values([0,3],ascending=[True,False])
-	left=left.drop_duplicates([0],keep="first")	
+	left[10]=left[3]-left[2]
+	left=left.drop_duplicates([0,2,3],keep=False).sort_values([0,10],ascending=[True,False])
+	left=left.drop_duplicates([0],keep="first")
 	left=left.loc[abs(left[1]-left[3])<=500]
 	right=pd.read_table(paf2,header=None,sep=" ")
-	right=right.drop_duplicates([0,2,3],keep=False).sort_values([0,3],ascending=[True,True])
+	right[10]=right[3]-right[2]
+	right=right.drop_duplicates([0,2,3],keep=False).sort_values([0,10],ascending=[True,False])
 	right=right.drop_duplicates([0],keep="first")
 	right=right.loc[right[2]<=500]
 	left[9]=left[0].apply(lambda x:x.split(":")[0])
 	right[9]=right[0].apply(lambda x:x.split(":")[0])
 	combined=pd.merge(left,right,on=[9],how="inner")
-	combined=combined[combined["5_x"]==combined["5_y"]]
-	print(left.shape)
-	print(left[0:10])
-	print(right.shape)
-	print(right[0:10])	
+	combined=combined[(combined["5_x"]==combined["5_y"]) & (combined["4_x"]==combined["4_y"])]
+	combined["J1"]=0
+	combined["J2"]=0
+
+	combined.loc[combined["4_x"]=="+","J1"]=combined["8_x"]
+	combined.loc[combined["4_x"]=="-","J1"]=combined["7_x"]
+	combined.loc[combined["4_y"]=="+","J2"]=combined["7_y"]
+	combined.loc[combined["4_y"]=="-","J2"]=combined["8_y"]
+	combined=combined.loc[abs(combined["J1"]-combined["J2"])<1000]
 	print(combined[0:10])
 	print(combined.shape)
-
+	print(combined.drop_duplicates([9],keep="first").shape)
+	combined.to_csv(pName+".insReads.tsv",header=None,index=None)
 getJuctions(pName+".left.paf",pName+".right.paf")
