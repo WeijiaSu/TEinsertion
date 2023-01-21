@@ -34,6 +34,7 @@ genome=args.Genome
 def FullLegnthTE(TE):
 	
 	#Select full length
+	TE_Name=list(TE["TE_Name"])[0]
 	TE=TE.loc[(TE["TEstart"]<=fl) & (TE["TEend"]>=TE["TElen"]-fl)]
 	TE=TE.loc[(TE["ReadStart_TE"]>=100) | (TE["ReadEnd_TE"]<=TE["ReadLen"]-100)]
 	if TE.shape[0]>0:
@@ -43,8 +44,10 @@ def FullLegnthTE(TE):
 		right=TE[["Readname","ReadEnd_TE","ReadLen"]]
 		left.to_csv(pName+".left",header=None,index=None,sep="\t")
 		right.to_csv(pName+".right",header=None,index=None,sep="\t")
+		print("Full length TE: %s"%(TE.shape[0]))
+		print(TE[0:10])
 	else:
-		print("No full length %s"%(list(TE["TE_Name"])[0]))
+		print("No full length %s"%(TE_Name))
 	return TE
 
 def getSeq(fastq,Genome):
@@ -80,17 +83,20 @@ def getJuctions(paf1,paf2):
 	combined.loc[combined["4_y"]=="+","J2"]=combined["7_y"]
 	combined.loc[combined["4_y"]=="-","J2"]=combined["8_y"]
 	combined=combined.loc[abs(combined["J1"]-combined["J2"])<1000]
+	print(combined[0:10])
 	if combined.shape[0]>0:
+		print("flanking %s"%(combined.shape[0]))
+		print(combined[0:10])
 		combined.to_csv(pName+".insReads.tsv",header=None,index=None,sep="\t")
 	return combined
 
 def Cluster(combined_result):
 	f=pd.read_table(combined_result,header=None)
 	bedInput=f[[16,21,22,9]]
-	bedInput.loc[bedInput[21]<bedInput[22],"J1"]=bedInput[21]
-	bedInput.loc[bedInput[21]<bedInput[22],"J2"]=bedInput[22]
-	bedInput.loc[bedInput[21]>bedInput[22],"J1"]=bedInput[22]
-	bedInput.loc[bedInput[21]>bedInput[22],"J2"]=bedInput[21]
+	bedInput.loc[bedInput[21]<=bedInput[22],"J1"]=bedInput[21]
+	bedInput.loc[bedInput[21]<=bedInput[22],"J2"]=bedInput[22]
+	bedInput.loc[bedInput[21]>=bedInput[22],"J1"]=bedInput[22]
+	bedInput.loc[bedInput[21]>=bedInput[22],"J2"]=bedInput[21]
 	bedInput=bedInput[[16,"J1","J2",9]]
 	bedInput["J1"]=bedInput["J1"].apply(int)
 	bedInput["J2"]=bedInput["J2"].apply(int)
@@ -103,10 +109,10 @@ def Cluster(combined_result):
 def Assign(Cluster,combined,fl_TE):
 	f=pd.read_table(combined,header=None)
 	c=pd.read_table(Cluster,header=None)
-	f.loc[f[21]<f[22],"J1"]=f[21]
-	f.loc[f[21]<f[22],"J2"]=f[22]
-	f.loc[f[21]>f[22],"J1"]=f[22]
-	f.loc[f[21]>f[22],"J2"]=f[21]
+	f.loc[f[21]<=f[22],"J1"]=f[21]
+	f.loc[f[21]<=f[22],"J2"]=f[22]
+	f.loc[f[21]>=f[22],"J1"]=f[22]
+	f.loc[f[21]>=f[22],"J2"]=f[21]
 	f["J1"]=f["J1"].apply(int)
 	f["J2"]=f["J2"].apply(int)
 	c["UID"]=c[3]+"—"+c[0]+"_"+c[1].apply(str)+"_"+c[2].apply(str)
@@ -126,6 +132,7 @@ def Assign(Cluster,combined,fl_TE):
 
 def Main(TEmappingDf):
 	full_TE=FullLegnthTE(TEmappingDf)
+	TEres=pd.DataFrame(columns=["Readname","REFname","REFstart","REFend","cluster","TE_Name"])
 	if full_TE.shape[0]>0:
 		getSeq(fq,genome)
 		com=getJuctions(pName+".left.paf",pName+".right.paf")
@@ -141,17 +148,24 @@ def Main(TEmappingDf):
 			os.remove(pName+".insReads.tsv")
 			os.remove(pName+"bedInput.tsv")
 			os.remove(pName+"cluster.tsv")
-			return TEres
+	return TEres
 
 final_res=pd.DataFrame(columns=["Readname","REFname","REFstart","REFend","cluster","TE_Name"])
 TEmap=pd.read_table(Ta,header=None,sep=" ")
 TEmap=TEmap[range(0,9)]
 TEmap_columns=["Readname","ReadLen","ReadStart_TE","ReadEnd_TE","Strand_TE","TE_Name","TElen","TEstart","TEend"]
 TEmap.columns=TEmap_columns
-for i in set(TEmap["TE_Name"]):
+TElist=list(TEmap.drop_duplicates(["TE_Name"],keep="first")["TE_Name"])
+for i in TElist:
+	print("################ %s %s ####################" %(TElist.index(i)+1,i))
 	sub=TEmap.loc[TEmap["TE_Name"]==i]
+	print(sub.shape)
 	res=Main(sub)
+	print(res[0:10])
+	print("################ %s %s ####################" %(i, res.shape[0]))
 	final_res=final_res.append(res)
-
+	print("current output")
+	print(final_res.shape)
+	print(final_res[0:10])
 final_res.to_csv(pName+"_fullLen_insertion.tsv",index=None,sep="\t")
 
