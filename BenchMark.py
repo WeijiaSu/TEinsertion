@@ -23,7 +23,7 @@ def compareTLDR(TLDRdirPre,TEins,paf):
 	f2["TElen"]=f2["Family"].apply(lambda x: TElen[x])
 	
 	f2=f2.loc[f2["Filter"]=="PASS"]
-	f2=f2.loc[(f2["StartTE"]<100) & (f2["EndTE"]>f2["TElen"]-100)]
+	f2=f2.loc[(f2["StartTE"]<100) & (f2["EndTE"]>f2["TElen"]-100) & (abs(f2["LengthIns"])-abs(f2["TElen"])<=200)]
 	print(f1[0:10])
 	print(f1.shape)
 	print(f2[0:10])

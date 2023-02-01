@@ -23,23 +23,17 @@ args=parser.parse_args()
 
 pName=args.Prefix
 
-def genomeLocation(outfile):
-	f=pd.read_table(outfile)
-	f["coor1"]=-1
-	f["coor2"]=-1
-	f.loc[f["Junc_2"]==-1,"coor1"]=f["Junc_1"].apply(lambda x: round(x,-2))
-	f.loc[f["Junc_1"]==-1,"coor1"]=f["Junc_2"].apply(lambda x: round(x,-2))
-	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]<=f["Junc_2"]), "coor1"]=f["Junc_1"].apply(lambda x: round(x,-2))
-	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]>f["Junc_2"]), "coor1"]=f["Junc_2"].apply(lambda x: round(x,-2))
-	f.loc[(f["Junc_1"]!=-1)&(f["Junc_2"]!=-1) & (f["Junc_1"]<=f["Junc_2"]), "coor2"]=f["Junc_2"].apply(lambda x: round(x,-2))
-	f.loc[(f["Junc_1"]!=-1)& (f["Junc_2"]!=-1)& (f["Junc_1"]>=f["Junc_2"]), "coor2"]=f["Junc_1"].apply(lambda x: round(x,-2))
-	f.loc[f["left_refName"]!="-1","refName"]=f["left_refName"]
-	f.loc[f["left_refName"]=="-1","refName"]=f["right_refName"]
-	f=f.loc[f["TEconf"]=="FL_TE"]
-	f=f.loc[f["conf"]=="double"]
-	#f=f.groupby(["refName","coor1"],as_index=False).count()
-	print(f.shape)
-	print(f[0:10])
+def Classfy_TEmap(TE_paf):
+	f=pd.read_table(TE_paf,header=None,sep=" ")
+	f1=f.loc[(f[7]<=100) & (f[8]>=f[6]-100)]
+	f1.to_csv(TE_paf+"_fulllength.tsv",header=None,index=None,sep="\t")
+	f2=f.loc[((f[7]<=100) & (f[8]<f[6]-100)) | ((f[7]>100) & (f[8]>=f[6]-100))]
+	f2.to_csv(TE_paf+"_OneEnd.tsv",header=None,index=None,sep="\t")
+	f3=f.loc[(f[7]>100) & (f[8]<f[6]-100)]
+	f3=f3.to_csv(TE_paf+"_NoEnd.tsv",header=None,index=None,sep="\t")
 	
+	print(f[0:10])
+	print(f.shape)
 
-genomeLocation(pName+"_InsReads.tsv")
+
+Classfy_TEmap("barcode21.fastq_TE_full.fa.paf")
