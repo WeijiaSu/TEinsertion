@@ -12,7 +12,7 @@ def TLDRhelper(filename):
 	f=pd.read_table(filename)
 	f=f.loc[f["IsSpanRead"]==True]
 	f=f.loc[f["Useable"]==True]
-	return list(set(f["ReadName"]))
+	return f
 
 
 def compareTLDR(TLDRdirPre,TEins,paf):
@@ -36,7 +36,11 @@ def compareTLDR(TLDRdirPre,TEins,paf):
 	l2=[]
 	for i in list(f2["UUID"]):
 		filename=TLDRdir+i+".detail.out"
-		l2=l2+TLDRhelper(filename)
+		l2.append(TLDRhelper(filename))
+	f_t=l2[0]
+	for fi in l2[1:]:
+		f_t=f_t.append(fi)
+	f_t.to_csv(TLDRdirPre+".tldrReads.txt",index=None,sep="\t")
 
 	l1=set(l1)
 	l2=set(l2)
@@ -57,4 +61,4 @@ def compareTLDR(TLDRdirPre,TEins,paf):
 	print(f_paf[0:10])
 	print(f_paf.shape)
 
-compareTLDR("/data/zhanglab/Weijia_Su/TLDR/Fly/TestPipeline/barcode21.fastq_tldr","/data/zhanglab/Weijia_Su/TestInsertion/test_fl_fullLen_insertion.tsv","/data/zhanglab/Weijia_Su/TestInsertion/barcode21.fastq_TE_full.fa.paf")
+#compareTLDR("/data/zhanglab/Weijia_Su/TLDR/Fly/TestPipeline/barcode21.fastq_tldr","/data/zhanglab/Weijia_Su/TestInsertion/test_fl_fullLen_insertion.tsv","/data/zhanglab/Weijia_Su/TestInsertion/barcode21.fastq_TE_full.fa.paf")
