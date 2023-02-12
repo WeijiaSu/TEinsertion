@@ -45,22 +45,26 @@ def compareTLDR(TLDRdirPre, TEins, paf):
     # print the first 10 rows of the "f2" dataframe and its shape
     print(f2[0:10])
     print(f2.shape)
-
-
-
 	print(f2["SpanReads"].sum())	
-	l1=set(f1["Readname"])
 
+	# get a set of Readname from f1
+	    # get a set of Readname from f1
+	l1=set(f1["Readname"])
+	
 	TLDRdir=TLDRdirPre+"/"
 	
+	# list to store the results of TLDRhelper function applied to multiple files
 	l2=[]
 	for i in list(f2["UUID"]):
 		filename=TLDRdir+i+".detail.out"
 		l2.append(TLDRhelper(filename))
+	# concatenate the results of TLDRhelper
 	f_t=l2[0]
 	for fi in l2[1:]:
 		f_t=f_t.append(fi)
-	f_t.to_csv(TLDRdirPre+".tldrReads.txt",index=None,sep="\t")
+	# write the concatenated results to file
+	
+	f_t.to_csv(TLDRdirPre + ".tldrReads.txt", index=None, sep="\t")
 
 	l1=set(l1)
 	l2=set(l2)
