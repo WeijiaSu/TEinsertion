@@ -1,6 +1,8 @@
 import pandas as pd
 from Bio import SeqIO
 
+# set the maximum number of columns displayed in the console to 40
+
 pd.set_option("display.max_columns",40)
 
 ref="/data/zhanglab/Weijia_Su/CommonDataSet/TE_full.fa"
@@ -61,4 +63,4 @@ def compareTLDR(TLDRdirPre,TEins,paf):
 	print(f_paf[0:10])
 	print(f_paf.shape)
 
-#compareTLDR("/data/zhanglab/Weijia_Su/TLDR/Fly/TestPipeline/barcode21.fastq_tldr","/data/zhanglab/Weijia_Su/TestInsertion/test_fl_fullLen_insertion.tsv","/data/zhanglab/Weijia_Su/TestInsertion/barcode21.fastq_TE_full.fa.paf")
+compareTLDR("/data/zhanglab/Weijia_Su/TLDR/Fly/TestPipeline/barcode21.fastq_tldr","/data/zhanglab/Weijia_Su/TestInsertion/test_fl_fullLen_insertion.tsv","/data/zhanglab/Weijia_Su/TestInsertion/barcode21.fastq_TE_full.fa.paf")
