@@ -66,7 +66,7 @@ def compareTLDR(TLDRdirPre, TEins, paf):
 	f_t.to_csv(TLDRdirPre + ".tldrReads.txt", index=None, sep="\t")
 
 	l1=set(l1)
-	l2=set(l2)
+	l2=set(f_t["ReadName"])
 	print(len(l1))
 	print(len(l2))
 
@@ -80,7 +80,7 @@ def compareTLDR(TLDRdirPre, TEins, paf):
 	
 	f_paf=pd.read_table(paf,header=None,sep=" ")
 	f_paf=f_paf.loc[f_paf[0].isin(l2_u)]
-	f_paf=f_paf.groupby([0,5],as_index=False).filter(lambda x:len(x)==1)
+	#f_paf=f_paf.groupby([0,5],as_index=False).filter(lambda x:len(x)==1)
 	print(f_paf[0:10])
 	print(f_paf.shape)
 
