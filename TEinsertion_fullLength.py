@@ -59,10 +59,13 @@ def FullLegnthTE(TE):
 	return TE
 
 def getSeq(fastq,Genome):
+	# Define the seqtk command line for the left.fastq and right.fastq output
 	seqtk1="seqtk subseq %s %s > %s"%(fastq,pName+".left",pName+".left.fastq")
 	seqtk2="seqtk subseq %s %s > %s"%(fastq,pName+".right",pName+".right.fastq")
 	os.system(seqtk1)
 	os.system(seqtk2)
+
+	#Map the letf and right fastq files to the genome using minimap2 and save the results to paf files
 	minimap="minimap2 -x map-ont %s %s -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i\" \";print \"\"}' FS='\\t' > %s"%(Genome,pName+".left.fastq",pName+".left.paf")
 	os.system(minimap)
 	minimap="minimap2 -x map-ont %s %s -Y -t 16 | awk '{for(i=1;i<=9;i++) printf $i\" \";print \"\"}' FS='\\t' > %s"%(Genome,pName+".right.fastq",pName+".right.paf")
