@@ -150,16 +150,17 @@ def Main(TEmappingDf):
 		if com.shape[0]>0:
 			Cluster(pName+".insReads.tsv")
 			TEres=Assign(pName+"cluster.tsv",pName+".insReads.tsv",full_TE)
-			os.remove(pName+".left")
-			os.remove(pName+".right")
-			os.remove(pName+".left.fastq")
-			os.remove(pName+".right.fastq")
-			os.remove(pName+".left.paf")
-			os.remove(pName+".right.paf")
-			os.remove(pName+".insReads.tsv")
-			os.remove(pName+"bedInput.tsv")
-			os.remove(pName+"cluster.tsv")
+			#os.remove(pName+".left")
+			#os.remove(pName+".right")
+			#os.remove(pName+".left.fastq")
+			#os.remove(pName+".right.fastq")
+			#os.remove(pName+".left.paf")
+			#os.remove(pName+".right.paf")
+			#os.remove(pName+".insReads.tsv")
+			#os.remove(pName+"bedInput.tsv")
+			#os.remove(pName+"cluster.tsv")
 	return TEres
+
 
 final_res=pd.DataFrame(columns=["Readname","REFname","REFstart","REFend","cluster","TE_Name"])
 TEmap=pd.read_table(Ta,header=None,sep=" ")
