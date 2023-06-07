@@ -176,6 +176,5 @@ for i in TElist:
 	final_res=final_res.append(res)
 	print("current output")
 	print(final_res.shape)
-	print(final_res[0:10])
 final_res.to_csv(pName+"_fullLen_insertion.tsv",index=None,sep="\t")
 
