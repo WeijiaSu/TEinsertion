@@ -21,31 +21,39 @@ parser.add_argument("-Ta","--TE_bam")
 parser.add_argument("-pName","--Prefix")
 parser.add_argument("-fq","--Rawfastq")
 parser.add_argument("-genome","--Genome")
-parser.add_argument("-flex","--flexibility",default=100)
+parser.add_argument("-buf","--bufferLen",default=100)
 
 args=parser.parse_args()
 
 Ta=args.TE_bam
 pName=args.Prefix
 fq=args.Rawfastq
-fl=args.flexibility
+fl=args.bufferLen
 genome=args.Genome
 
 def FullLegnthTE(TE):
 	
 	#Select full length
 	TE_Name=list(TE["TE_Name"])[0]
+	# Filtering TE to only include rows where TEstart is less or equal to fl
+	# and TEend is greater or equal to TElen minus fl
 	TE=TE.loc[(TE["TEstart"]<=fl) & (TE["TEend"]>=TE["TElen"]-fl)]
+	
+	# Further filtering of TE to only include rows where ReadStart_TE is greater or equal to 100
+	# or ReadEnd_TE is less or equal to ReadLen minus 100
 	TE=TE.loc[(TE["ReadStart_TE"]>=100) | (TE["ReadEnd_TE"]<=TE["ReadLen"]-100)]
+	
+	
 	if TE.shape[0]>0:
+		# Prepare left and right dataframes for CSV export
 		left=TE[["Readname","ReadStart_TE"]]
 		left["s"]=0
 		left=left[["Readname","s","ReadStart_TE"]]
+		# Export left and right dataframes to CSV
 		right=TE[["Readname","ReadEnd_TE","ReadLen"]]
 		left.to_csv(pName+".left",header=None,index=None,sep="\t")
 		right.to_csv(pName+".right",header=None,index=None,sep="\t")
 		print("Full length TE: %s"%(TE.shape[0]))
-		print(TE[0:10])
 	else:
 		print("No full length %s"%(TE_Name))
 	return TE
