@@ -94,10 +94,8 @@ def getJuctions(paf1,paf2):
 	combined.loc[combined["4_y"]=="+","J2"]=combined["7_y"]
 	combined.loc[combined["4_y"]=="-","J2"]=combined["8_y"]
 	combined=combined.loc[abs(combined["J1"]-combined["J2"])<1000]
-	print(combined[0:10])
 	if combined.shape[0]>0:
 		print("flanking %s"%(combined.shape[0]))
-		print(combined[0:10])
 		combined.to_csv(pName+".insReads.tsv",header=None,index=None,sep="\t")
 	return combined
 
