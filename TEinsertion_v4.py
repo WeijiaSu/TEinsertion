@@ -31,6 +31,8 @@ fq=args.Rawfastq
 fl=args.flexibility
 genome=args.Genome
 
+#Gether Information from the TE mapping paf files
+
 def FullLegnthTE(TE):
 	
 	#Select full length
