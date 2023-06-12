@@ -24,7 +24,7 @@ pd.set_option("display.max_column",40)
 class bamConverter:
 
 	#Conver bam to bed file
-	def ConverAlignment(self,bam):\
+	def ConverAlignment(self,bam):
 		index="samtools index %s"%(bam)
 		os.system(index)
 		samfile = pysam.AlignmentFile(bam, "rc")
