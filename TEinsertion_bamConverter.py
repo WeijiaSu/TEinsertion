@@ -49,8 +49,7 @@ class bamConverter:
 					Strand="+"
 					ReadStart=r1
 					ReadEnd=r2
-				l=[]
-				l=[Refname,RefStart,RefEnd,Readname,ReadLen,ReadStart,ReadEnd,Strand]
+				l=[Readname,ReadLen,ReadStart,ReadEnd,Strand,Refname,RefLen,RefStart,RefEnd]
 				l=[str(i) for i in l]
 				s="\t".join([str(i) for i in l]) 
 				f.write(s+"\n")
