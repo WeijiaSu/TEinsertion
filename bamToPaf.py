@@ -23,7 +23,7 @@ class bamConverter:
 		index="samtools index %s"%(bam)
 		os.system(index)
 		samfile = pysam.AlignmentFile(bam, "rc")
-		f=open(pre+"_AligTable.tsv","w")
+		f=open(pre+".paf","w")
 		columns=["QName","QLen","QStart","QEnd","Strand","RName","RLen","RStart","REnd"]
 		f.write("\t".join(columns)+"\n")
 		for read in samfile.fetch():

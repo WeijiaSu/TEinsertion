@@ -41,19 +41,27 @@ def MapToGenome():
 	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -b | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
 	os.system(minimap2)
 
-def convertToPaf(bamfile):
-	bamConverter().ConverAlignment(bamfile)
+def convertToPaf(bamfile,name):
+	bamConverter().ConverAlignment(bamfile,name)
 
 def readAlignment(TE_paf,Ge_paf):
 	f_te=pd.read_table(TE_paf)
+	f_te=f_te.sort_values(["QName","QStart"])
+	f_te_full=f_te.loc[(f_te["QStart"]<fl) & (f_te["QEnd"]>f_te["QLen"]-fl)]
+	f_te=f_te.loc[~f_te["QName"].isin(f_te_full["QName"])]
 	print(f_te.shape)
 	print(f_te[0:10])
-
+	f_ge=pd.read_table(Ge_paf)
+	f_ge=f_ge.sort_values(["QName","QStart"])
+	f_ge_full=f_ge.loc[(f_ge["QStart"]<fl) & (f_ge["QEnd"]>f_ge["QLen"]-fl)]
+	f_ge=f_ge.loc[~f_ge["QName"].isin(f_ge_full["QName"])]
+	print(f_ge.shape)
+	print(f_ge[0:10])
 
 #getMappedReads(Ta)
 #MapToGenome()
-#convertToPaf(Ta)
-#convertToPaf(pName+"_genome.bam")
+#convertToPaf(Ta,pName+"_TE")
+#convertToPaf(pName+"_genome.bam",pName+"_genome")
 
-readAlignment(,Ge_paf)
+readAlignment(pName+"_TE.paf",pName+"_genome.paf")
 
