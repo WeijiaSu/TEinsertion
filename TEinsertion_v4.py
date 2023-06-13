@@ -32,17 +32,22 @@ fq=args.Rawfastq
 fl=args.flexibility
 genome=args.Genome
 
-bamConverter().ConverAlignment(Ta)
 
 def getMappedReads(bam):
 	samtools="samtools view -b -F 4 %s | samtools fastq > %s"%(bam,pName+".mappedTE.fastq")
 	os.system(samtools)
 
-
-
 def MapToGenome():
 	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -bS | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
 	os.system(minimap2)
 
+def convertToPaf(bamfile):
+	bamConverter().ConverAlignment(bamfile)
+
 #getMappedReads(Ta)
-MapToGenome()
+#MapToGenome()
+convertToPaf(Ta)
+convertToPaf(pName+"_genome.bam")
+
+
+
