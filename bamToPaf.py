@@ -15,20 +15,15 @@ import warnings
 warnings.filterwarnings('ignore')
 pd.set_option("display.max_column",40)
 
-#parser=argparse.ArgumentParser()
-#parser.add_argument("-bam","--bam")
-#args=parser.parse_args()
-
-#bam_file=args.bam
 
 class bamConverter:
 
 	#Conver bam to bed file
-	def ConverAlignment(self,bam):
+	def ConverAlignment(self,bam,pre):
 		index="samtools index %s"%(bam)
 		os.system(index)
 		samfile = pysam.AlignmentFile(bam, "rc")
-		f=open(bam+"_AligTable.tsv","w")
+		f=open(pre+"_AligTable.tsv","w")
 		columns=["QName","QLen","QStart","QEnd","Strand","RName","RLen","RStart","REnd"]
 		f.write("\t".join(columns)+"\n")
 		for read in samfile.fetch():
