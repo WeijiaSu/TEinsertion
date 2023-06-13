@@ -18,8 +18,10 @@ warnings.filterwarnings('ignore')
 pd.set_option("display.max_column",40)
 
 parser=argparse.ArgumentParser()
-parser.add_argument("-Ta","--TE_bam")
-parser.add_argument("-pName","--Prefix")
+parser.add_argument("-t","--TE_bam",description='bam file with reads mapped to transposon consensus sequences')
+Ta=args.TE_bam
+TaName=str(Ta.split("/")[-1])
+parser.add_argument("-n","--Name",description="Prefix",default=TaName)
 parser.add_argument("-fq","--Rawfastq")
 parser.add_argument("-genome","--Genome")
 parser.add_argument("-flex","--flexibility",default=100)
