@@ -38,16 +38,22 @@ def getMappedReads(bam):
 	os.system(samtools)
 
 def MapToGenome():
-	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -bS | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
+	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -b | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
 	os.system(minimap2)
 
 def convertToPaf(bamfile):
 	bamConverter().ConverAlignment(bamfile)
 
+def readAlignment(TE_paf,Ge_paf):
+	f_te=pd.read_table(TE_paf)
+	print(f_te.shape)
+	print(f_te[0:10])
+
+
 #getMappedReads(Ta)
 #MapToGenome()
-convertToPaf(Ta)
-convertToPaf(pName+"_genome.bam")
+#convertToPaf(Ta)
+#convertToPaf(pName+"_genome.bam")
 
-
+readAlignment(,Ge_paf)
 
