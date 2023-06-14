@@ -46,19 +46,18 @@ def convertToPaf(bamfile,name):
 
 def filterTEreads(TE_paf):
 	f_te=pd.read_table(TE_paf)
-	f_te["Q_S"]=f_te["QName"].apply(str)+"_"+f_te["RName"].apply(str)
-	bedA=f_te[["Q_S","QLen"]].drop_duplicates(["Q_S"],keep="first")
+	#f_te["Q_S"]=f_te["QName"].apply(str)+"_"+f_te["RName"].apply(str)
+	bedA=f_te[["QName","QLen"]].drop_duplicates(["QName"],keep="first")
 	bedA["s"]=0
-	bedA[["Q_S","s","QLen"]].to_csv(pName+".bedA.bed",header=None,index=None,sep="\t")
-	f_te[["Q_S","QStart","QEnd"]].to_csv(pName+".bedB.bed",header=None,index=None,sep="\t")
+	bedA[["QName","s","QLen"]].to_csv(pName+".bedA.bed",header=None,index=None,sep="\t")
+	f_te[["QName","QStart","QEnd"]].to_csv(pName+".bedB.bed",header=None,index=None,sep="\t")
 	bedtools="bedtools coverage -a %s -b %s > %s"%(pName+".bedA.bed",pName+".bedB.bed",pName+".bed")
 	os.system(bedtools)
 	
 	f_bed=pd.read_table(pName+".bed",header=None)
 	f_bed["cutoff"]=f_bed[2]-f_bed[2]*f_bed[6]
 	f_bed=f_bed.loc[f_bed["cutoff"]>=fl*2]
-	f_te=f_te.loc[f_te["Q_S"].isin(f_bed[0])]
-	f_te=f_te.drop(["Q_S"],axis=1)
+	f_te=f_te.loc[f_te["QName"].isin(f_bed[0])]
 	f_te.to_csv(pName+"_TE.paf"+".filter.paf",index=None,sep="\t")
 	os.remove(pName+".bedA.bed")
 	os.remove(pName+".bedB.bed")
@@ -89,6 +88,6 @@ def combineAlignment(TE_paf,Ge_paf):
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
-#filterTEreads(pName+"_TE.paf")
+filterTEreads(pName+"_TE.paf")
 filterGenomeReads(pName+"_genome.paf")
 combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
