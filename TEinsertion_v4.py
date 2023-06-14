@@ -17,6 +17,8 @@ warnings.filterwarnings('ignore')
 
 pd.set_option("display.max_column",40)
 
+Chromosome=["chr2L","chr2R","chr3L","chr3R","chr4","chrX","chrY"]
+
 parser=argparse.ArgumentParser()
 parser.add_argument("-t","--TE_bam",help='bam file with reads mapped to transposon consensus sequences')
 parser.add_argument("-n","--Name",help="Prefix")
@@ -68,6 +70,7 @@ def filterGenomeReads(Ge_paf):
 	f_ge=f_ge.sort_values(["QName","QStart"])
 	f_ge_full=f_ge.loc[(f_ge["QStart"]<fl) & (f_ge["QEnd"]>f_ge["QLen"]-fl)]
 	f_ge=f_ge.loc[~f_ge["QName"].isin(f_ge_full["QName"])]
+	f_ge=f_ge.loc[f_ge["RName"].isin(Chromosome)]
 	f_ge.to_csv(pName+"_genome.paf"+".filter.paf",index=None,sep="\t")
 
 
@@ -80,6 +83,8 @@ def combineAlignment(TE_paf,Ge_paf):
 	f=f_ge.merge(f_te,on=["QName"],how="inner")
 	print(f.shape)
 	print(f[0:10])
+	
+	f=f.loc[(f["QEnd_x"]<f["QStart_y"]+fl) | (f["QStart_x"]>f["QEnd_y"]-fl)]
 	f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
 	print(f.shape)
 	print(f[0:10])
