@@ -77,13 +77,7 @@ def filterGenomeReads(Ge_paf):
 def combineAlignment(TE_paf,Ge_paf):
 	f_te=pd.read_table(TE_paf)
 	f_ge=pd.read_table(Ge_paf)
-	print(f_te.shape)
-	print(f_te[0:10])
-	print(f_ge[0:10])
 	f=f_ge.merge(f_te,on=["QName"],how="inner")
-	print(f.shape)
-	print(f[0:10])
-	
 	f=f.loc[(f["QEnd_x"]<f["QStart_y"]+fl) | (f["QStart_x"]>f["QEnd_y"]-fl)]
 	#f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
 	f["overlap"]=False
@@ -94,8 +88,7 @@ def combineAlignment(TE_paf,Ge_paf):
 	f.loc[overlap2,"overlap"]="overlap2"
 	f=f.loc[f["overlap"]==False]
 	f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
-	print(f.shape)
-	print(f[0:50])
+	f.to_csv(pName+"_merged.tsv",index=None,sep="\t")
 
 	
 
@@ -105,4 +98,4 @@ def combineAlignment(TE_paf,Ge_paf):
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
-combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
+#combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
