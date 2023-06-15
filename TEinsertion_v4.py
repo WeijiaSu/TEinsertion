@@ -85,14 +85,24 @@ def combineAlignment(TE_paf,Ge_paf):
 	print(f[0:10])
 	
 	f=f.loc[(f["QEnd_x"]<f["QStart_y"]+fl) | (f["QStart_x"]>f["QEnd_y"]-fl)]
+	#f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
+	f["overlap"]=False
+	overlap1=((f["QStart_x"]<=f["QStart_y"]) & (f["QEnd_x"]>=f["QEnd_y"]))
+	overlap2=((f["QStart_y"]<=f["QStart_x"]) & (f["QEnd_y"]>=f["QStart_x"]))
+	overlap3=((f["QEnd_y"]>=f["QEnd_x"]) & (f["QStart_y"]<=f["QEnd_x"]-fl))
+	f.loc[overlap1,"overlap"]="overlap1"
+	f.loc[overlap2,"overlap"]="overlap2"
+	f=f.loc[f["overlap"]==False]
 	f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
 	print(f.shape)
-	print(f[0:10])
+	print(f[0:50])
+
+	
 
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
-filterTEreads(pName+"_TE.paf")
-filterGenomeReads(pName+"_genome.paf")
+#filterTEreads(pName+"_TE.paf")
+#filterGenomeReads(pName+"_genome.paf")
 combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
