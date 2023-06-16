@@ -88,8 +88,13 @@ def combineAlignment(TE_paf,Ge_paf):
 	f.loc[overlap2,"overlap"]="overlap2"
 	f=f.loc[f["overlap"]==False]
 	f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
+	f=f.drop(["overlap"],axis=1)
 	f.to_csv(pName+"_merged.tsv",index=None,sep="\t")
 
+def getInsertion(Filename):
+	f=pd.read_table(Filename)
+	print(f[0:20])
+	print(f.shape)
 	
 
 #getMappedReads(Ta)
@@ -99,3 +104,4 @@ def combineAlignment(TE_paf,Ge_paf):
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
+getInsertion(pName+"_merged.tsv")
