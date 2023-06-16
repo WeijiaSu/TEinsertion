@@ -93,10 +93,20 @@ def combineAlignment(TE_paf,Ge_paf):
 
 def getInsertion(Filename):
 	f=pd.read_table(Filename)
-	print(f[0:20])
+	f=f.sort_values(["QName","QStart_x","QEnd_x"])
+	f=f.drop_duplicates(["QName","QStart_x","QEnd_x"],keep="first")
+	f=f.drop_duplicates(["QName","QStart_x"],keep="last")
+	f=f.drop_duplicates(["QName","QEnd_x"],keep="first")
 	print(f.shape)
-	
-
+	print(f.drop_duplicates(["QName"],keep="first").shape)
+	f1=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
+	print(f1.shape)
+	print(f1[0:10])
+	print(f1.drop_duplicates(["QName"],keep="first").shape)
+	f2=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==2)
+	print(f2.shape)
+	print(f2[0:10])
+	print(f2.drop_duplicates(["QName"],keep="first").shape)
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
