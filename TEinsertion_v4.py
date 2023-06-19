@@ -111,7 +111,7 @@ def getInsertion(Filename):
 	print(f3.shape)
 	print(f3[0:10])
 	print(f3.drop_duplicates(["QName"],keep="first").shape)
-
+	return f1,f2,f3
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
@@ -119,4 +119,4 @@ def getInsertion(Filename):
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-getInsertion(pName+"_merged.tsv")
+f1,f2,f3=getInsertion(pName+"_merged.tsv")
