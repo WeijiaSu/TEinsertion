@@ -100,8 +100,10 @@ def getInsertion(Filename):
 	f1=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
 	f2=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==2)
 	f3=f.loc[~(f["QName"].isin(f1["QName"])) & ~(f["QName"].isin(f2["QName"]))]
-	
-	return f1,f2,f3
+	f1.to_csv(pName+".single.tsv",index=None,sep="\t")
+	f2.to_csv(pName+".double.tsv",index=None,sep="\t")
+	f3.to_csv(pName+".multiple.tsv",index=None,sep="\t")
+	r
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
