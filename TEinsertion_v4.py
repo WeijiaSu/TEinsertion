@@ -97,20 +97,10 @@ def getInsertion(Filename):
 	f=f.drop_duplicates(["QName","QStart_x","QEnd_x"],keep="first")
 	f=f.drop_duplicates(["QName","QStart_x"],keep="last")
 	f=f.drop_duplicates(["QName","QEnd_x"],keep="first")
-	print(f.shape)
-	print(f.drop_duplicates(["QName"],keep="first").shape)
 	f1=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
-	print(f1.shape)
-	print(f1[0:10])
-	print(f1.drop_duplicates(["QName"],keep="first").shape)
 	f2=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==2)
-	print(f2.shape)
-	print(f2[0:10])
-	print(f2.drop_duplicates(["QName"],keep="first").shape)
 	f3=f.loc[~(f["QName"].isin(f1["QName"])) & ~(f["QName"].isin(f2["QName"]))]
-	print(f3.shape)
-	print(f3[0:10])
-	print(f3.drop_duplicates(["QName"],keep="first").shape)
+	
 	return f1,f2,f3
 #getMappedReads(Ta)
 #MapToGenome()
@@ -120,3 +110,5 @@ def getInsertion(Filename):
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
 f1,f2,f3=getInsertion(pName+"_merged.tsv")
+
+
