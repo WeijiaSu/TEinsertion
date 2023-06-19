@@ -107,6 +107,11 @@ def getInsertion(Filename):
 	print(f2.shape)
 	print(f2[0:10])
 	print(f2.drop_duplicates(["QName"],keep="first").shape)
+	f3=f.loc[~(f["QName"].isin(f1)) & ~(f["QName"].isin(f2))]
+	print(f3.shape)
+	print(f3[0:10])
+	print(f3.drop_duplicates(["QName"],keep="first").shape)
+
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
