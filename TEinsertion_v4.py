@@ -97,12 +97,16 @@ def getInsertion(Filename):
 	f=f.drop_duplicates(["QName","QStart_x","QEnd_x"],keep="first")
 	f=f.drop_duplicates(["QName","QStart_x"],keep="last")
 	f=f.drop_duplicates(["QName","QEnd_x"],keep="first")
-	f1=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
-	f2=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==2)
+	f1=f.groupby(["QName","RName_y","QStart_y","QEnd_y"],as_index=False).filter(lambda x: len(x)==1)
+	f2=f.groupby(["QName","RName_y","QStart_y","QEnd_y"],as_index=False).filter(lambda x: len(x)==2)
 	f3=f.loc[~(f["QName"].isin(f1["QName"])) & ~(f["QName"].isin(f2["QName"]))]
 	f1.to_csv(pName+".single.tsv",index=None,sep="\t")
 	f2.to_csv(pName+".double.tsv",index=None,sep="\t")
 	f3.to_csv(pName+".multiple.tsv",index=None,sep="\t")
+	print(f1.drop_duplicates(["QName"],keep="first").shape)
+	print(f2.drop_duplicates(["QName"],keep="first").shape)
+	print(f3.drop_duplicates(["QName"],keep="first").shape)
+	print(f.drop_duplicates(["QName"],keep="first").shape)
 
 def getSingle(single):
 	f=pd.read_table(single)
@@ -117,7 +121,11 @@ def getSingle(single):
 	f["flanking"]="single"
 	f=f.drop(["ds1","ds2"],axis=1)
 	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
-	print(f[0:50])
+
+def getDouble(double):
+	f=pd.read_table(double)
+	
+	print(f[0:20])
 	print(f.shape)
 
 #getMappedReads(Ta)
@@ -126,6 +134,7 @@ def getSingle(single):
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
-#combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-#getInsertion(pName+"_merged.tsv")
+combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
+getInsertion(pName+"_merged.tsv")
 getSingle("shmCherryTest0612.single.tsv")
+getDouble(pName+".double.tsv")
