@@ -108,8 +108,16 @@ def getSingle(single):
 	f=pd.read_table(single)
 	f["ds1"]=abs(f["QEnd_x"]-f["QStart_y"])
 	f["ds2"]=abs(f["QStart_x"]-f["QEnd_y"])
-
-	print(f[0:10])
+	f["J1"]=0
+	f["J2"]=0
+	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"J1"]=f["REnd_x"]
+	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="-"),"J1"]=f["RStart_x"]
+	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="+"),"J2"]=f["RStart_x"]
+	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="-"),"J2"]=f["REnd_x"]
+	f["flanking"]="single"
+	f=f.drop(["ds1","ds2"],axis=1)
+	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
+	print(f[0:50])
 	print(f.shape)
 
 #getMappedReads(Ta)
