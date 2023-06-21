@@ -103,6 +103,15 @@ def getInsertion(Filename):
 	f1.to_csv(pName+".single.tsv",index=None,sep="\t")
 	f2.to_csv(pName+".double.tsv",index=None,sep="\t")
 	f3.to_csv(pName+".multiple.tsv",index=None,sep="\t")
+
+def getSingle(single):
+	f=pd.read_table(single)
+	f["ds1"]=abs(f["QEnd_x"]-f["QStart_y"])
+	f["ds2"]=abs(f["QStart_x"]-f["QEnd_y"])
+
+	print(f[0:10])
+	print(f.shape)
+
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
@@ -110,6 +119,5 @@ def getInsertion(Filename):
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-getInsertion(pName+"_merged.tsv")
-
-
+#getInsertion(pName+"_merged.tsv")
+getSingle("shmCherryTest0612.single.tsv")
