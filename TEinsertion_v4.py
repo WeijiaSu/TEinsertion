@@ -140,7 +140,15 @@ def getDouble(double):
 	columns=["QName","QLen","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","RName_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]
 	f_new.columns=columns
 
-	f_new[]
+	f_new["J1"]=0
+	f_new["J2"]=0
+
+	f_new.loc[f_new["Strand_ref1"]=="+","J1"]=f_new["REnd_ref1"]
+	f_new.loc[f_new["Strand_ref1"]=="-","J1"]=f_new["RStart_ref1"]
+	f_new.loc[f_new["Strand_ref2"]=="+","J2"]=f_new["RStart_ref2"]
+	f_new.loc[f_new["Strand_ref2"]=="-","J2"]=f_new["REnd_ref2"]
+	
+	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
 	print(f[0:20])
 	print(f.shape)
 		
