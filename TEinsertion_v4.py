@@ -97,8 +97,8 @@ def getInsertion(Filename):
 	f=f.drop_duplicates(["QName","QStart_x","QEnd_x"],keep="first")
 	f=f.drop_duplicates(["QName","QStart_x"],keep="last")
 	f=f.drop_duplicates(["QName","QEnd_x"],keep="first")
-	f1=f.groupby(["QName","RName_y","QStart_y","QEnd_y"],as_index=False).filter(lambda x: len(x)==1)
-	f2=f.groupby(["QName","RName_y","QStart_y","QEnd_y"],as_index=False).filter(lambda x: len(x)==2)
+	f1=f.groupby(["QName","RName_y","QStart_y","QEnd_y","RStart_y","REnd_y"],as_index=False).filter(lambda x: len(x)==1)
+	f2=f.groupby(["QName","RName_y","QStart_y","QEnd_y","RStart_y","REnd_y"],as_index=False).filter(lambda x: len(x)==2)
 	f3=f.loc[~(f["QName"].isin(f1["QName"])) & ~(f["QName"].isin(f2["QName"]))]
 	f1.to_csv(pName+".single.tsv",index=None,sep="\t")
 	f2.to_csv(pName+".double.tsv",index=None,sep="\t")
@@ -124,17 +124,32 @@ def getSingle(single):
 
 def getDouble(double):
 	f=pd.read_table(double)
+	f=f.drop(["QLen_y"],axis=1)
+	f=f.sort_values(["QName","QStart_x","QEnd_x"])
+	f_s=f.drop_duplicates(["QName"],keep="first")
+	f_e=f.drop_duplicates(["QName"],keep="last")
+	f_new=f_s.merge(f_e,on=["QName","QStart_y","QEnd_y","QLen_x"])
+	f_new=f_new.loc[f_new["RName_x_x"]==f_new["RName_x_y"]]
+	f_new=f_new.loc[f_new["Strand_x_x"]==f_new["Strand_x_y"]]
 	
+	f_new["ds1"]=abs(f_new["QEnd_x_x"]-f_new["QStart_y"])
+	f_new["ds2"]=abs(f_new["QStart_x_y"]-f_new["QEnd_y"])
+	f_new=f_new.loc[(f_new["ds1"]<=fl*5) & (f_new["ds2"]<=fl*5)]
+
+	f_new=f_new[["QName","QLen_x","QStart_x_x","QEnd_x_x","QStart_y","QEnd_y","QStart_x_y","QEnd_x_y","RName_x_x","RLen_x_x","RStart_x_x","REnd_x_x","Strand_x_x","RName_y_x","RLen_y_x","RStart_y_x","REnd_y_x","Strand_y_x","RName_x_y","RStart_x_y","REnd_x_y"]]
 	print(f[0:20])
 	print(f.shape)
-
+	
+	print(f_new.shape)
+	print(f_new[0:20])
+	
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
-combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-getInsertion(pName+"_merged.tsv")
-getSingle("shmCherryTest0612.single.tsv")
+#combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
+#getInsertion(pName+"_merged.tsv")
+#getSingle("shmCherryTest0612.single.tsv")
 getDouble(pName+".double.tsv")
