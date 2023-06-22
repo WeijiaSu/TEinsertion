@@ -149,10 +149,8 @@ def getDouble(double):
 	f_new.loc[f_new["Strand_ref2"]=="-","J2"]=f_new["REnd_ref2"]
 	
 	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
-	print(f[0:20])
-	print(f.shape)
-		
-	print(f_new.shape)
+	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
+	print(f_new.drop_duplicates(["QName"],keep="first").shape)
 	print(f_new[0:20])
 	
 #getMappedReads(Ta)
