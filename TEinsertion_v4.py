@@ -188,10 +188,13 @@ def getDouble(double):
 
 def	classifySingle(SingleFile):
 	f=pd.read_table(SingleFile)
-	
-	#f=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)
+	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
+	#f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)>1)	
+	f=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)
+	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	print(f[0:10])
 	print(f.shape)
+	print(f.drop_duplicates(["QName"],keep="first").shape)
 
 #getMappedReads(Ta)
 #MapToGenome()
