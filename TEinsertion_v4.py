@@ -154,10 +154,6 @@ def getSingle(single):
 	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
 	#
 	
-	print(f.shape)
-	print(f.drop_duplicates(["QName"],keep="first").shape)
-	print(f[0:20])
-
 
 def getDouble(double):
 	f=pd.read_table(double)
@@ -188,10 +184,14 @@ def getDouble(double):
 	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
 	f_new.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 	f_new["flanking"]="double"
-	print(f_new.shape)
-	print(f_new.drop_duplicates(["QName"],keep="first").shape)
-	print(f_new[0:10])
 
+
+def	classifySingle(SingleFile):
+	f=pd.read_table(SingleFile)
+	
+	#f=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)
+	print(f[0:10])
+	print(f.shape)
 
 #getMappedReads(Ta)
 #MapToGenome()
@@ -200,6 +200,7 @@ def getDouble(double):
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-#getInsertion(pName+"_merged.tsv")
+getInsertion(pName+"_merged.tsv")
 getSingle("shmCherryTest0612.single.tsv")
 getDouble(pName+".double.tsv")
+classifySingle(pName+".single_junction.tsv")
