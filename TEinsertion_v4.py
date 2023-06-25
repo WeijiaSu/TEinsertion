@@ -204,6 +204,6 @@ def	classifySingle(SingleFile):
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
 getInsertion(pName+"_merged.tsv")
-getSingle("shmCherryTest0612.single.tsv")
+getSingle(pName+".single.tsv")
 getDouble(pName+".double.tsv")
 classifySingle(pName+".single_junction.tsv")
