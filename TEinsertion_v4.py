@@ -189,7 +189,7 @@ def getDouble(double):
 def	classifySingle(SingleFile):
 	f=pd.read_table(SingleFile)
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
-	#f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)>1)	
+	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)	
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	g=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)
 	print(g[0:10])
@@ -203,7 +203,7 @@ def	classifySingle(SingleFile):
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
-getInsertion(pName+"_merged.tsv")
-getSingle(pName+".single.tsv")
-getDouble(pName+".double.tsv")
+#getInsertion(pName+"_merged.tsv")
+#getSingle(pName+".single.tsv")
+#getDouble(pName+".double.tsv")
 classifySingle(pName+".single_junction.tsv")
