@@ -191,7 +191,7 @@ def	classifySingle(SingleFile):
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)	
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
-	g=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)
+	g=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)[["RName_y","QName"]]
 	print(g[0:10])
 	print(f.shape)
 	print(f.drop_duplicates(["QName"],keep="first").shape)
