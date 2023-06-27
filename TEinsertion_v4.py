@@ -190,12 +190,26 @@ def	classifySingle(SingleFile):
 	f=pd.read_table(SingleFile)
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)	
-	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	g=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)[["RName_y","QName"]]
+	
+	#l=["opus", "copia", "micropia", "mdg3", "Quasimodo", "412"]
+	#g=g.loc[g["RName_y"].isin(l)]
 	print(g[0:10])
 	print(f.shape)
 	print(f.drop_duplicates(["QName"],keep="first").shape)
 
+
+def classifyDouble(doubleFile):
+	f=pd.read_table(doubleFile)
+	f=f.loc[(f["RStart_TE"]<=fl) & (f["REnd_TE"]>=f["RLen_TE"]-fl)]
+	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)
+	g=f.groupby(["RName_TE"],as_index=False).count().sort_values(["QName"],ascending=False)[["RName_TE","QName"]]
+	l=["opus", "copia", "micropia", "mdg3", "Quasimodo", "412"]
+	f=f.loc[f["RName_TE"].isin(l)]
+	f=f.sort_values(["RName_TE"])
+	#g=g.loc[g["RName_TE"].isin(l)]
+	#print(g[0:10])
+	print(f.shape)
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
@@ -206,4 +220,5 @@ def	classifySingle(SingleFile):
 #getInsertion(pName+"_merged.tsv")
 #getSingle(pName+".single.tsv")
 #getDouble(pName+".double.tsv")
-classifySingle(pName+".single_junction.tsv")
+#classifySingle(pName+".single_junction.tsv")
+classifyDouble(pName+".double_junction.tsv")
