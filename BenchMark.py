@@ -37,7 +37,7 @@ def compareTLDR(TLDRdirPre, TEins, paf):
 	# and "StartTE" less than 100, "EndTE" greater than the sequence length minus 100,
 	# and the difference between "LengthIns" and the sequence length being less than or equal to 200
 	f2 = f2.loc[f2["Filter"] == "PASS"]
-	f2 = f2.loc[(f2["StartTE"] < 100) & (f2["EndTE"] > f2["TElen"] - 100) & (abs(f2["LengthIns"]) - abs(f2["TElen"]) <= 200)]
+	f2 = f2.loc[(f2["StartTE"] < 100) & (f2["EndTE"] > f2["TElen"] - 100)]
 	
 	# print the first 10 rows of the "f1" dataframe and its shape
 	print(f1[0:10])
