@@ -200,6 +200,7 @@ def	classifySingle(SingleFile):
 
 
 def classifyDouble(doubleFile):
+	print(pName+".double_junction.tsv")
 	f=pd.read_table(doubleFile)
 	f=f.loc[(f["RStart_TE"]<=fl) & (f["REnd_TE"]>=f["RLen_TE"]-fl)]
 	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)
@@ -210,6 +211,9 @@ def classifyDouble(doubleFile):
 	#g=g.loc[g["RName_TE"].isin(l)]
 	#print(g[0:10])
 	print(f.shape)
+	print(f)
+	f.to_csv(pName+".reads.tsv",index=None,sep="\t")
+
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
