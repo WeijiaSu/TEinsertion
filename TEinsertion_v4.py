@@ -116,42 +116,45 @@ def getSingle(single):
 	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="+"),"J2"]=f["RStart_x"]
 	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="-"),"J2"]=f["REnd_x"]
 	f["flanking"]="single"
-	#f=f.drop(["ds1","ds2"],axis=1)
-	#f["QStart_ref1"]=0
-	#f["QEnd_ref1"]=0
-	#f["QStart_TE"]=f["RStart_y"]
-	#f["QEnd_TE"]=f["QEnd_y"]
-	#f["QStart_ref2"]=0
-	#f["QEnd_ref2"]=0
-	#f["RName_ref1"]=0
-	#f["RLen_ref"]=0
-	#f["RStart_ref1"]=0
-	#f["REnd_ref1"]=0
-	#f["Strand_ref1"]=0
-	#f["RName_TE"]=f["RName_y"]
-	#f["RLen_TE"]=f["RLen_y"]
-	#f["RStart_TE"]=f["RStart_y"]
-	#f["REnd_TE"]=f["REnd_y"]
-	#f["Strand_TE"]=f["Strand_y"]
-	#f["RName_ref2"]=0
-	#f["RStart_ref2"]=0
-	#f["REnd_ref2"]=0
-	#f["Strand_ref2"]=0
+	f["QStart_ref1"]=0
+	f["QEnd_ref1"]=0
+	f["QStart_TE"]=f["RStart_y"]
+	f["QEnd_TE"]=f["QEnd_y"]
+	f["QStart_ref2"]=0
+	f["QEnd_ref2"]=0
+	f["RName_ref1"]=0
+	f["RLen_ref"]=0
+	f["RStart_ref1"]=0
+	f["REnd_ref1"]=0
+	f["Strand_ref1"]=0
+	f["RName_TE"]=f["RName_y"]
+	f["RLen_TE"]=f["RLen_y"]
+	f["RStart_TE"]=f["RStart_y"]
+	f["REnd_TE"]=f["REnd_y"]
+	f["Strand_TE"]=f["Strand_y"]
+	f["RName_ref2"]=0
+	f["RStart_ref2"]=0
+	f["REnd_ref2"]=0
+	f["Strand_ref2"]=0
 
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QStart_ref1"]=f["QStart_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref1"]=f["QEnd_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QStart_ref2"]="NA"
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref2"]="NA"
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RName_ref1"]=f["RName_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RLen_ref"]=f["RLen_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RStart_ref1"]=f["RStart_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
-	#f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
+	condition1=(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+")
+
+	f.loc[condition1, ["QStart_ref1","QEnd_ref1"]] = f.loc[condition1, ["QStart_x","QEnd_x"]].values
+
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref1"]=f["QEnd_x"]
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QStart_ref2"]="NA"
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref2"]="NA"
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RName_ref1"]=f["RName_x"]
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RLen_ref"]=f["RLen_x"]
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RStart_ref1"]=f["RStart_x"]
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
+#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
+#	
+	print(f[0:10])
+	print(f.shape)
+
 	#
-
-
-	#
-	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
+	#f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")
 	#
 	
 
@@ -222,7 +225,7 @@ def classifyDouble(doubleFile):
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
 #getInsertion(pName+"_merged.tsv")
-#getSingle(pName+".single.tsv")
+getSingle(pName+".single.tsv")
 #getDouble(pName+".double.tsv")
 #classifySingle(pName+".single_junction.tsv")
 classifyDouble(pName+".double_junction.tsv")
