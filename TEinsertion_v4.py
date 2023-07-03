@@ -115,7 +115,6 @@ def getSingle(single):
 	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="-"),"J1"]=f["RStart_x"]
 	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="+"),"J2"]=f["RStart_x"]
 	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="-"),"J2"]=f["REnd_x"]
-	f["flanking"]="single"
 	f["QStart_ref1"]=0
 	f["QEnd_ref1"]=0
 	f["QStart_TE"]=f["RStart_y"]
@@ -145,8 +144,11 @@ def getSingle(single):
 	f.loc[condition1, assign_columns] = f.loc[condition1, ["QStart_x","QEnd_x","QStart_ref2","QEnd_ref2","RName_x","RLen_x","RStart_x","REnd_x","Strand_x","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]].values
 	f.loc[condition2, assign_columns] = f.loc[condition2, ["QStart_ref1","QEnd_ref1","QStart_x","QEnd_x","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_x","RLen_x","RStart_x","REnd_x","Strand_x"]].values
 #	
-	f=f[["QName","QLen_x","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2","flanking"]]
-	columns=["QName","QLen","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","RName_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]
+	f=f[["QName","QLen_x","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]]
+	columns=["QName","QLen","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]
+
+	f.columns=columns
+
 	print(f[0:10])
 	print(f.shape)
 	f["J1"]=0
@@ -158,6 +160,8 @@ def getSingle(single):
 	f.loc[f["Strand_ref2"]=="-","J2"]=f["REnd_ref2"]
 
 	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")#
+	f["flanking"]="single"
+
 	print(f[0:10])
 	print(f.shape)
 	#
@@ -190,10 +194,11 @@ def getDouble(double):
 	f_new.loc[f_new["Strand_ref2"]=="-","J2"]=f_new["REnd_ref2"]
 	
 	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
-	f_new.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 	f_new["flanking"]="double"
 	print(f_new[0:10])
 	print(f_new.shape)
+	
+	f.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 
 def	AllInsertions(file1,file2):
 	f1=pd.read_table(file1)
@@ -215,4 +220,4 @@ def	AllInsertions(file1,file2):
 #getInsertion(pName+"_merged.tsv")
 getSingle(pName+".single.tsv")
 getDouble(pName+".double.tsv")
-AllInsertions(pName+".single.tsv",pName+".double.tsv")
+AllInsertions(pName+".single_junction.tsv",pName+".double_junction.tsv")
