@@ -149,8 +149,6 @@ def getSingle(single):
 
 	f.columns=columns
 
-	print(f[0:10])
-	print(f.shape)
 	f["J1"]=0
 	f["J2"]=0
 
@@ -159,9 +157,8 @@ def getSingle(single):
 	f.loc[f["Strand_ref2"]=="+","J2"]=f["RStart_ref2"]
 	f.loc[f["Strand_ref2"]=="-","J2"]=f["REnd_ref2"]
 
-	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")#
 	f["flanking"]="single"
-
+	f.to_csv(pName+".single_junction.tsv",index=None,sep="\t")#
 	print(f[0:10])
 	print(f.shape)
 	#
@@ -198,18 +195,19 @@ def getDouble(double):
 	print(f_new[0:10])
 	print(f_new.shape)
 	
-	f.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
+	f_new.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 
 def	AllInsertions(file1,file2):
 	f1=pd.read_table(file1)
+	print(f1[0:10])
+	print(f1.shape)
 	f2=pd.read_table(file2)
-	
-	f=f1.append(f2)
-	print(f[0:20])
+	print(f2[0:10])
+	print(f2.shape)
+	f=f1.append(f2,ignore_index=True)
+	print(f[0:10])
 	print(f.shape)
 	print(f.drop_duplicates(["QName"],keep="first").shape)
-
-
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
