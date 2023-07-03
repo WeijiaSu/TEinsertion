@@ -138,7 +138,7 @@ def getSingle(single):
 	f["Strand_ref2"]=0
 
 	condition1=(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+")
-
+	
 	f.loc[condition1, ["QStart_ref1","QEnd_ref1"]] = f.loc[condition1, ["QStart_x","QEnd_x"]].values
 
 #	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref1"]=f["QEnd_x"]
