@@ -123,7 +123,7 @@ def getSingle(single):
 	f["QStart_ref2"]=0
 	f["QEnd_ref2"]=0
 	f["RName_ref1"]=0
-	f["RLen_ref"]=0
+	f["RLen_ref1"]=0
 	f["RStart_ref1"]=0
 	f["REnd_ref1"]=0
 	f["Strand_ref1"]=0
@@ -133,16 +133,19 @@ def getSingle(single):
 	f["REnd_TE"]=f["REnd_y"]
 	f["Strand_TE"]=f["Strand_y"]
 	f["RName_ref2"]=0
+	f["RLen_ref2"]=0
 	f["RStart_ref2"]=0
 	f["REnd_ref2"]=0
 	f["Strand_ref2"]=0
 
-	condition1=(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+")
-	assign_columns=["QStart_ref1","QEnd_ref1","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref","RStart_ref1","REnd_ref1","Strand_ref1","RName_ref2","RStart_ref2","Strand_ref2"]
+	condition1=f["ds1"]<f["ds2"]
+	condition2=f["ds1"]>=f["ds2"]
 
-	f.loc[condition1, ["QStart_ref1","QEnd_ref1"]] = f.loc[condition1, ["QStart_x","QEnd_x"]].values
-
+	assign_columns=["QStart_ref1","QEnd_ref1","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]
+	f.loc[condition1, assign_columns] = f.loc[condition1, ["QStart_x","QEnd_x","QStart_ref2","QEnd_ref2","RName_x","RLen_x","RStart_x","REnd_x","Strand_x","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]].values
+	f.loc[condition2, assign_columns] = f.loc[condition2, ["QStart_ref1","QEnd_ref1","QStart_x","QEnd_x","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_x","RLen_x","RStart_x","REnd_x","Strand_x"]].values
 #	
+	f=f[["QName","QLen_x","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]]
 	print(f[0:10])
 	print(f.shape)
 
@@ -221,4 +224,4 @@ def classifyDouble(doubleFile):
 getSingle(pName+".single.tsv")
 #getDouble(pName+".double.tsv")
 #classifySingle(pName+".single_junction.tsv")
-classifyDouble(pName+".double_junction.tsv")
+#classifyDouble(pName+".double_junction.tsv")
