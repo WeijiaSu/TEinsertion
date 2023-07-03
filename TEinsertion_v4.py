@@ -138,17 +138,10 @@ def getSingle(single):
 	f["Strand_ref2"]=0
 
 	condition1=(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+")
-	
+	assign_columns=["QStart_ref1","QEnd_ref1","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref","RStart_ref1","REnd_ref1","Strand_ref1","RName_ref2","RStart_ref2","Strand_ref2"]
+
 	f.loc[condition1, ["QStart_ref1","QEnd_ref1"]] = f.loc[condition1, ["QStart_x","QEnd_x"]].values
 
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref1"]=f["QEnd_x"]
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QStart_ref2"]="NA"
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"QEnd_ref2"]="NA"
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RName_ref1"]=f["RName_x"]
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RLen_ref"]=f["RLen_x"]
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"RStart_ref1"]=f["RStart_x"]
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
-#	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"REnd_ref1"]=f["REnd_x"]
 #	
 	print(f[0:10])
 	print(f.shape)
