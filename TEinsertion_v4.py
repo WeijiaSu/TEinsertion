@@ -145,7 +145,8 @@ def getSingle(single):
 	f.loc[condition1, assign_columns] = f.loc[condition1, ["QStart_x","QEnd_x","QStart_ref2","QEnd_ref2","RName_x","RLen_x","RStart_x","REnd_x","Strand_x","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]].values
 	f.loc[condition2, assign_columns] = f.loc[condition2, ["QStart_ref1","QEnd_ref1","QStart_x","QEnd_x","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_x","RLen_x","RStart_x","REnd_x","Strand_x"]].values
 #	
-	f=f[["QName","QLen_x","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]]
+	f=f[["QName","QLen_x","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref1","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","Strand_TE","RName_ref2","RLen_ref2","RStart_ref2","REnd_ref2","Strand_ref2","flanking"]]
+	columns=["QName","QLen","QStart_ref1","QEnd_ref1","QStart_TE","QEnd_TE","QStart_ref2","QEnd_ref2","RName_ref1","RLen_ref","RStart_ref1","REnd_ref1","Strand_ref1","RName_TE","RLen_TE","RStart_TE","REnd_TE","Strand_TE","RName_ref2","RStart_ref2","REnd_ref2","Strand_ref2"]
 	print(f[0:10])
 	print(f.shape)
 
@@ -183,10 +184,12 @@ def getDouble(double):
 	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
 	f_new.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 	f_new["flanking"]="double"
+	print(f_new.shape)
+	print(f_new[0:10])
 
-
-def	classifySingle(SingleFile):
-	f=pd.read_table(SingleFile)
+def	AllInsertions(file1,file2):
+	f1=pd.read_table(file1)
+	f1=pd.read_table(file2)
 	f=f.loc[(f["RStart_y"]<=fl) | (f["REnd_y"]>=f["RLen_y"]-fl)]
 	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)	
 	g=f.groupby(["RName_y"],as_index=False).count().sort_values(["QName"],ascending=False)[["RName_y","QName"]]
@@ -198,21 +201,6 @@ def	classifySingle(SingleFile):
 	print(f.drop_duplicates(["QName"],keep="first").shape)
 
 
-def classifyDouble(doubleFile):
-	print(pName+".double_junction.tsv")
-	f=pd.read_table(doubleFile)
-	f=f.loc[(f["RStart_TE"]<=fl) & (f["REnd_TE"]>=f["RLen_TE"]-fl)]
-	f=f.groupby(["QName"],as_index=False).filter(lambda x : len(x)==1)
-	g=f.groupby(["RName_TE"],as_index=False).count().sort_values(["QName"],ascending=False)[["RName_TE","QName"]]
-	l=["opus", "copia", "micropia", "mdg3", "Quasimodo", "412"]
-	f=f.loc[f["RName_TE"].isin(l)]
-	f=f.sort_values(["RName_TE"])
-	#g=g.loc[g["RName_TE"].isin(l)]
-	#print(g[0:10])
-	print(f.shape)
-	print(f)
-	f.to_csv(pName+".reads.tsv",index=None,sep="\t")
-
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
@@ -222,6 +210,4 @@ def classifyDouble(doubleFile):
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
 #getInsertion(pName+"_merged.tsv")
 getSingle(pName+".single.tsv")
-#getDouble(pName+".double.tsv")
-#classifySingle(pName+".single_junction.tsv")
-#classifyDouble(pName+".double_junction.tsv")
+getDouble(pName+".double.tsv")
