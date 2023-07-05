@@ -199,15 +199,17 @@ def getDouble(double):
 
 def	AllInsertions(file1,file2):
 	f1=pd.read_table(file1)
-	print(f1[0:10])
-	print(f1.shape)
 	f2=pd.read_table(file2)
-	print(f2[0:10])
-	print(f2.shape)
 	f=f1.append(f2,ignore_index=True)
 	print(f[0:10])
 	print(f.shape)
 	print(f.drop_duplicates(["QName"],keep="first").shape)
+	g=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)>1)
+	print(g[0:20])
+	print(g.shape)
+	print(g.drop_duplicates(["QName"],keep="first").shape)
+
+
 #getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
