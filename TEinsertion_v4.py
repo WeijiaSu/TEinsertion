@@ -109,15 +109,9 @@ def getSingle(single):
 	f=pd.read_table(single)
 	f["ds1"]=abs(f["QEnd_x"]-f["QStart_y"])
 	f["ds2"]=abs(f["QStart_x"]-f["QEnd_y"])
-	f["J1"]=0
-	f["J2"]=0
-	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="+"),"J1"]=f["REnd_x"]
-	f.loc[(f["ds1"]<f["ds2"])&(f["Strand_x"]=="-"),"J1"]=f["RStart_x"]
-	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="+"),"J2"]=f["RStart_x"]
-	f.loc[(f["ds1"]>=f["ds2"])&(f["Strand_x"]=="-"),"J2"]=f["REnd_x"]
 	f["QStart_ref1"]=0
 	f["QEnd_ref1"]=0
-	f["QStart_TE"]=f["RStart_y"]
+	f["QStart_TE"]=f["QStart_y"]
 	f["QEnd_TE"]=f["QEnd_y"]
 	f["QStart_ref2"]=0
 	f["QEnd_ref2"]=0
@@ -204,7 +198,7 @@ def	AllInsertions(file1,file2):
 	print(f[0:10])
 	print(f.shape)
 	print(f.drop_duplicates(["QName"],keep="first").shape)
-	g=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)>1)
+	g=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
 	print(g[0:20])
 	print(g.shape)
 	print(g.drop_duplicates(["QName"],keep="first").shape)
