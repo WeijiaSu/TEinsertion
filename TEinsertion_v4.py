@@ -186,9 +186,6 @@ def getDouble(double):
 	
 	f_new=f_new.loc[abs(f_new["J1"]-f_new["J2"])<=fl*5]
 	f_new["flanking"]="double"
-	print(f_new[0:10])
-	print(f_new.shape)
-	
 	f_new.to_csv(pName+".double_junction.tsv",index=None,sep="\t")
 
 def	AllInsertions(file1,file2):
@@ -199,6 +196,8 @@ def	AllInsertions(file1,file2):
 	print(g[0:20])
 	print(g.shape)
 	print(g.drop_duplicates(["QName"],keep="first").shape)
+	g.to_csv(pName+".insertion.tsv",index=None,sep="\t")
+
 
 
 getMappedReads(Ta)
