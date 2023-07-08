@@ -79,7 +79,6 @@ def combineAlignment(TE_paf,Ge_paf):
 	f_ge=pd.read_table(Ge_paf)
 	f=f_ge.merge(f_te,on=["QName"],how="inner")
 	f=f.loc[(f["QEnd_x"]<f["QStart_y"]+fl) | (f["QStart_x"]>f["QEnd_y"]-fl)]
-	#f=f.loc[(abs(f["QEnd_x"]-f["QStart_y"])<=5*fl) | (abs(f["QStart_x"]-f["QEnd_y"])<=5*fl)]
 	f["overlap"]=False
 	overlap1=((f["QStart_x"]<=f["QStart_y"]) & (f["QEnd_x"]>=f["QEnd_y"]))
 	overlap2=((f["QStart_y"]<=f["QStart_x"]) & (f["QEnd_y"]>=f["QStart_x"]))
@@ -193,6 +192,7 @@ def	AllInsertions(file1,file2):
 	f2=pd.read_table(file2)
 	f=f1.append(f2,ignore_index=True)
 	g=f.groupby(["QName"],as_index=False).filter(lambda x: len(x)==1)
+	g=g.loc[(g["RStart_TE"]<=fl) | (g["REnd_TE"]>=g["RLen_TE"]-fl)]
 	print(g.shape)
 	g.to_csv(pName+".insertion.tsv",index=None,sep="\t")
 
