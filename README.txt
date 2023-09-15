@@ -1,4 +1,4 @@
-# TE-Genome Analysis Pipeline
+## TE-Genome Analysis Pipeline
 
 This script provides a comprehensive pipeline for analyzing the relationship between transposable elements (TEs) and their respective genomes using mapped read data.
 
