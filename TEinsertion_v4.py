@@ -25,6 +25,7 @@ parser.add_argument("-n","--Name",help="Prefix")
 parser.add_argument("-fq","--Rawfastq")
 parser.add_argument("-g","--Genome")
 parser.add_argument("-flex","--flexibility",default=100)
+parser.add_argument("-chr","--Chromosomes",default="All")
 
 args=parser.parse_args()
 
@@ -198,7 +199,7 @@ def	AllInsertions(file1,file2):
 
 
 
-#getMappedReads(Ta)
+getMappedReads(Ta)
 #MapToGenome()
 #convertToPaf(Ta,pName+"_TE")
 #convertToPaf(pName+"_genome.bam",pName+"_genome")
@@ -208,4 +209,4 @@ def	AllInsertions(file1,file2):
 #getInsertion(pName+"_merged.tsv")
 #getSingle(pName+".single.tsv")
 #getDouble(pName+".double.tsv")
-AllInsertions(pName+".single_junction.tsv",pName+".double_junction.tsv")
+#AllInsertions(pName+".single_junction.tsv",pName+".double_junction.tsv")

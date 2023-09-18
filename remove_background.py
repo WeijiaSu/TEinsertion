@@ -38,17 +38,16 @@ def orgFile(file1):
 	f.loc[f["J1"]!=0,"J"]=f["J1"].apply(lambda x: round(x,-3))
 	
 	f["infor"]=f["chrome"]+"_"+f["J"].apply(str)
+	f=f.loc[f["RName_TE"]=="roo"]
 	return f
 
 def removeBG(f1_,f2_):
 	f1=orgFile(f1_)
-	f1=f1.loc[f1["RName_TE"]=="HMS-Beagle"]
 	f2=orgFile(f2_)
-	f2=f2.loc[f2["RName_TE"]=="HMS-Beagle"]
 	f1=f1.loc[~f1["infor"].isin(f2["infor"])]
 	g1=f1.groupby(["infor"],as_index=False).count().sort_values(["QName"],ascending=[False])
-	print(f1[0:10])
-	print(f1.shape)
+	#print(f1[0:10])
+	#print(f1.shape)
 	print(g1.shape)
 	#print(g1[0:10])
 
@@ -56,7 +55,7 @@ def removeBG(f1_,f2_):
 	f2=f2.loc[~f2["infor"].isin(f1["infor"])]
 	g2=f2.groupby(["infor"],as_index=False).count().sort_values(["QName"],ascending=[False])
 	#print(f2[0:10])
-	print(f2.shape)
+	#print(f2.shape)
 	#print(g2[0:10])
-	print(g2.shape)
+	#print(g2.shape)
 removeBG(f1_,f2_)
