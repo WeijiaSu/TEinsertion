@@ -41,7 +41,7 @@ def getMappedReads(bam):
 	os.system(samtools)
 
 def MapToGenome():
-	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -b | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
+	minimap2="minimap2 -ax map-ont %s %s -Y -t 16 | samtools view -bS | samtools sort > %s"%(genome,pName+".mappedTE.fastq",pName+"_genome.bam")
 	os.system(minimap2)
 
 def convertToPaf(bamfile,name):
@@ -200,9 +200,9 @@ def	AllInsertions(file1,file2):
 
 
 #getMappedReads(Ta)
-#MapToGenome()
-#convertToPaf(Ta,pName+"_TE")
-convertToPaf(pName+"_genome.bam",pName+"_genome")
+MapToGenome()
+convertToPaf(Ta,pName+"_TE")
+#convertToPaf(pName+"_genome.bam",pName+"_genome")
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
