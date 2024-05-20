@@ -199,10 +199,10 @@ def	AllInsertions(file1,file2):
 
 
 
-getMappedReads(Ta)
-MapToGenome()
-convertToPaf(Ta,pName+"_TE")
-#convertToPaf(pName+"_genome.bam",pName+"_genome")
+#getMappedReads(Ta)
+#MapToGenome()
+#convertToPaf(Ta,pName+"_TE")
+convertToPaf(pName+"_genome.bam",pName+"_genome")
 #filterTEreads(pName+"_TE.paf")
 #filterGenomeReads(pName+"_genome.paf")
 #combineAlignment(pName+"_TE.paf"+".filter.paf",pName+"_genome.paf"+".filter.paf")
